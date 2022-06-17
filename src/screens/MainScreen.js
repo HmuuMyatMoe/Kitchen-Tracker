@@ -12,7 +12,7 @@ const MainScreen = ({ navigation }) => {
             >
             <Pressable
                 style={styles.button}
-                onPress={() => navigation.navigate('Auth')}
+                onPress={() => navigation.navigate('Login')}
                 android_ripple={styles.ripple}
             >
             <Text style={styles.text}>Welcome! Click To Sign Up/Login</Text>

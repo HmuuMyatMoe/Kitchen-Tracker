@@ -8,18 +8,18 @@ import {
     Platform,
 } from 'react-native';
 import React, { useState } from 'react';
-import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-} from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, updateProfile } from 'firebase/auth';
 
 import { AuthTextInput, AuthPressable, SwitchPressable } from '../components';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { addDoc, collection, setDoc, doc } from "firebase/firestore"; 
+import { NavigationHelpersContext } from '@react-navigation/native';
+import { List } from 'react-native-paper';
 
-const AuthScreen = () => {
-    const [isLogin, setIsLogin] = useState(true);
+const SignUpScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [displayName, setDisplayName] = useState('');
 
     // Todo: email, password states
 
@@ -37,53 +37,73 @@ const AuthScreen = () => {
         );
     };
 
-    const loginHandler = () => {
-        if (email.length === 0 || password.length === 0) {
+    const shortPasswordToast = () => {
+        ToastAndroid.show(
+            'Password needs to be at least 6 characters, please try again!',
+            ToastAndroid.SHORT
+        );        
+    }
+
+
+    const storeUser = async(uid) => {
+        try {
+            const userRef = await setDoc(doc(db, uid, 'Data'), {
+                displayName: displayName
+            });
+
+            console.log('completed', userRef.id);
+            
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const storeName = () => {
+        const auth = getAuth();
+        const nameRef = updateProfile(auth.currentUser, {
+            displayName: displayName
+        }).then(() => {
+            console.log('Name updated', nameRef);
+            console.log(auth.currentUser);
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
+    
+
+    const signUpHandler = async () => {
+        if (email.length === 0 || password.length === 0 || displayName.length === 0) {
             missingFieldsToast();
             return;
         }
 
-        // Todo
-        return signInWithEmailAndPassword(auth, email, password).then(uc => {
-            const user = uc.user;
-
-            console.log(user);
-
-            restoreForm();
-        }).catch((err) => {
-            const errCode = err.code;
-            const errMessage = err.message;
-
-            console.log('[loginHandler]', errCode, errMessage);
-        });
-    };
-
-    const signUpHandler = () => {
-        if (email.length === 0 || password.length === 0) {
-            missingFieldsToast();
+        if (password.length < 6) {
+            shortPasswordToast();
             return;
         }
 
         // Todo return the promise
         return createUserWithEmailAndPassword(auth, email, password).then(uc => { //createUser... returns a promise, then waits for promise to be successful and return user creds
             const user = uc.user; //uc is the promise returned then we wan to get the user
-
             console.log(user); //see whats the returned obj
 
+            storeUser(user.uid);
+            storeName();
             restoreForm(); //clear inputs upon successful sign up & dismiss keyboard
             signUpToast(); //prompt successful sign ups
 
-        }).catch(err => { //catch any errors, doc in Firebase
-            const errCode = err.code;
-            const errMessage = err.message;
+        }).catch((error) => { //catch any errors, doc in Firebase
+            const errorCode = error.code;
+            const errorMessage = error.message;
 
-            console.log('[signupHandler]', errCode, errMessage)
+            console.log('[signupHandler]', errorCode, errorMessage);
         });
     };
 
     const restoreForm = () => {
         setEmail('');
         setPassword('');
+        setDisplayName('');
         Keyboard.dismiss();
     };
 
@@ -94,36 +114,48 @@ const AuthScreen = () => {
         >
             <View style={styles.container}>
                 <Text style={[styles.welcomeText, styles.boldText]}>
-                    {isLogin ? 'Login' : 'Create New Account'}
-                </Text>
-                {/*<Text style={[styles.authText, styles.boldText]}>
-                    {isLogin ? 'You are logging in!' : 'You are signing up!'}
-    </Text> */}              
+                    {'Create New Account'}
+                </Text>           
                 <SwitchPressable
-                    onPressHandler={() => setIsLogin(!isLogin)}
-                    title={isLogin? 'Not a user yet? Click here to register!' : 'Already registered? Click here to login!'}
+                    onPressHandler={() => navigation.navigate('Login')}
+                    title={'Already registered? Click here to login!'}
                 />
+
+                <View style={styles.smallContainer}>
+                <Text>NAME</Text>
+                </View>
+
+                <AuthTextInput
+                    value={displayName}
+                    placeholder="Your Name"
+                    textHandler={setDisplayName}
+                />
+
                 <View style={styles.smallContainer}>
                 <Text>EMAIL</Text>
                 </View>
+
                 <AuthTextInput
                     value={email}
                     placeholder="Your Email"
                     textHandler={setEmail}
                     keyboardType="email-address"
                 />
+
                 <View style={styles.smallContainer}>
                 <Text>PASSWORD</Text>
                 </View>
+
                 <AuthTextInput
                     value={password}
                     placeholder="Your Password"
                     textHandler={setPassword}
                     secureTextEntry
                 />
+
                 <AuthPressable
-                    onPressHandler={isLogin ? loginHandler : signUpHandler}
-                    title={isLogin? 'Login' : 'Sign Up'}
+                    onPressHandler={signUpHandler}
+                    title={'Sign Up'}
                 />
 
             </View>
@@ -131,7 +163,7 @@ const AuthScreen = () => {
     );
 };
 
-export default AuthScreen;
+export default SignUpScreen;
 
 const styles = StyleSheet.create({
     container: {

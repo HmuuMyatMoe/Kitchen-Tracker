@@ -9,8 +9,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { auth } from '../firebase';
 import {
     MainScreen,
-    AuthScreen,
-    UsersScreen,
+    LoginScreen,
+    SignUpScreen,
     ListScreen,
     TableScreen,
     SettingsScreen,
@@ -44,21 +44,23 @@ const AppNavigator = () => {
     //can put vars in this array then useEffect will listen to changes in this var and trigger whats inside it if theres any changes
 
     const AuthNavigator = () => (
-        <Stack.Navigator initialRouteName="Main">
+        <Stack.Navigator 
+            initialRouteName="Main"
+            >
             <Stack.Screen
                 name="Main"
                 options={{ title: 'Welcome' }}
                 component={MainScreen}
             />
             <Stack.Screen
-                name="Auth"
-                options={{ headerTitle: 'Welcome' }}
-                component={AuthScreen}
+                name="Login"
+                options={{ headerTitle: 'Login' }}
+                component={LoginScreen}
             />
             <Stack.Screen
-                name="Users"
-                options={{ headerShown: false }}
-                component={UsersScreen}
+                name="Sign Up"
+                options={{ headerShown: 'Sign Up' }}
+                component={SignUpScreen}
             />
         </Stack.Navigator>
     );

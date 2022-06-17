@@ -16,6 +16,7 @@ import { query, collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/
 
 import { db } from '../firebase';
 import { Table } from '../components';
+import { getAuth } from "firebase/auth";
 
 const INPUT_PLACEHOLDER = 'Add your item';
 const THEME = '#407BFF';
@@ -25,15 +26,23 @@ const { width } = Dimensions.get('window');
 const TableScreen = () => {
     const [item, setItem] = useState('');
     const [itemList, setItemList] = useState([]);
-    const [date, setDate] = useState(' ');
-    const [quantity, setQuantity] = useState(' ');
+    const [date, setDate] = useState('');
+    const [quantity, setQuantity] = useState('');
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user === null) {
+        while(user === null){
+            user = auth.currentUser;
+        }
+    }
 
     useEffect(() => {
         // Expensive operation. Consider your app's design on when to invoke this.
         // Could use Redux to help on first application load.
         // Todo: listen to firestore changes
         //create a query obj to pass into onSnapshot to tell firebase what to look at/retrieve from firestore
-        const itemQuery = query(collection(db, 'inventory'));
+        const itemQuery = query(collection(db, user.uid, 'Data','inventory'));
 
         //subscriber to listen to changes
         const subscriber = onSnapshot(itemQuery, (snapshot) => { //snapshot is the snapshot returned by the func
@@ -67,7 +76,7 @@ const TableScreen = () => {
         // Todo, wrap in a try catch to catch any errors when executing this
         try {
             //declare a var itemRef to keep track of whats added
-            const itemRef = await addDoc(collection(db, 'inventory'), {
+            const itemRef = await addDoc(collection(db, user.uid, 'Data','inventory'), {
                 desc: item,
                 date: date,
                 quantity: quantity, //item is a var we declared on top, which we use to track the input from the text input
@@ -91,7 +100,7 @@ const TableScreen = () => {
     const onDeleteHandler = async (id) => {
         // Todo
         try {
-            await deleteDoc(doc(db, 'inventory', id));
+            await deleteDoc(doc(db, user.uid, 'Data', 'inventory', id));
             //doc takes in database, collection name and the id of the doc u want to delete
             showRes('Successfully deleted');
             console.log('successfully deleted');
