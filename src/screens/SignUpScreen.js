@@ -6,15 +6,14 @@ import {
     Keyboard,
     KeyboardAvoidingView,
     Platform,
+    SafeAreaView,
 } from 'react-native';
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, getAuth, updateProfile } from 'firebase/auth';
 
 import { AuthTextInput, AuthPressable, SwitchPressable } from '../components';
 import { auth, db } from '../firebase';
-import { addDoc, collection, setDoc, doc } from "firebase/firestore"; 
-import { NavigationHelpersContext } from '@react-navigation/native';
-import { List } from 'react-native-paper';
+import { setDoc, doc } from "firebase/firestore"; 
 
 const SignUpScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -23,36 +22,19 @@ const SignUpScreen = ({ navigation }) => {
 
     // Todo: email, password states
 
-    const signUpToast = () => {
-        ToastAndroid.show(
-            'Sign Up successfully completed!',
-            ToastAndroid.SHORT
-        );
+    const showRes = (text) => {
+        ToastAndroid.show(text, ToastAndroid.SHORT);
     };
 
-    const missingFieldsToast = () => {
-        ToastAndroid.show(
-            'Missing fields, please try again!',
-            ToastAndroid.SHORT
-        );
-    };
 
-    const shortPasswordToast = () => {
-        ToastAndroid.show(
-            'Password needs to be at least 6 characters, please try again!',
-            ToastAndroid.SHORT
-        );        
-    }
-
-
-    const storeUser = async(uid) => {
+    const storeUser = async (uid) => {
         try {
-            const userRef = await setDoc(doc(db, uid, 'Data'), {
-                displayName: displayName
-            });
+            await setDoc(doc(db, uid, 'Data'), {
+            displayName: displayName
+        });
 
-            console.log('completed', userRef.id);
-            
+        console.log('completed', uid);
+        
         } catch (err) {
             console.log(err);
         }
@@ -63,8 +45,10 @@ const SignUpScreen = ({ navigation }) => {
         const nameRef = updateProfile(auth.currentUser, {
             displayName: displayName
         }).then(() => {
+            
             console.log('Name updated', nameRef);
             console.log(auth.currentUser);
+
         }).catch((error) => {
             console.log(error);
         });
@@ -73,12 +57,12 @@ const SignUpScreen = ({ navigation }) => {
 
     const signUpHandler = async () => {
         if (email.length === 0 || password.length === 0 || displayName.length === 0) {
-            missingFieldsToast();
+            showRes('Missing fields, please try again!');
             return;
         }
 
         if (password.length < 6) {
-            shortPasswordToast();
+            showRes('Password needs to be at least 6 characters, please try again!');
             return;
         }
 
@@ -90,13 +74,13 @@ const SignUpScreen = ({ navigation }) => {
             storeUser(user.uid);
             storeName();
             restoreForm(); //clear inputs upon successful sign up & dismiss keyboard
-            signUpToast(); //prompt successful sign ups
+            showRes('Sign Up successfully completed!') //prompt successful sign ups
 
         }).catch((error) => { //catch any errors, doc in Firebase
             const errorCode = error.code;
             const errorMessage = error.message;
 
-            console.log('[signupHandler]', errorCode, errorMessage);
+            console.error('[signupHandler]', errorCode, errorMessage);
         });
     };
 
@@ -109,10 +93,18 @@ const SignUpScreen = ({ navigation }) => {
 
     return (
         <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : null}
+            style={{ 
+                flex: 1,
+                backgroundColor: 'white',
+            }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'position'}
+            contentContainerStyle={{
+                flex: 1,
+                backgroundColor: 'white',
+            }}
         >
-            <View style={styles.container}>
+            <SafeAreaView style={styles.container}>
+
                 <Text style={[styles.welcomeText, styles.boldText]}>
                     {'Create New Account'}
                 </Text>           
@@ -158,7 +150,7 @@ const SignUpScreen = ({ navigation }) => {
                     title={'Sign Up'}
                 />
 
-            </View>
+            </SafeAreaView>
         </KeyboardAvoidingView>
     );
 };
@@ -167,24 +159,28 @@ export default SignUpScreen;
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#fff', //#EBECF0
+        backgroundColor: 'white', //#EBECF0
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
         paddingTop: 40,
     },
+    /*subContainer: {
+        position: 'absolute',
+        width: '100%',
+        flexDirection: 'column',
+        //backgroundColor: 'pink',
+        alignSelf: 'flex-start',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },*/
     boldText: {
         fontWeight: '300',
     },
     welcomeText: {
         fontSize: 50,
         textAlign: 'center',
-        marginBottom: 0,
     },
-    /*authText: {
-        fontSize: 20,
-        marginBottom: 10,
-    },*/
     smallContainer: {
         width: '80%',
         paddingBottom: 2

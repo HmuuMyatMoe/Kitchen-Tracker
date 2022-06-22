@@ -16,7 +16,7 @@ import { query, collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/
 
 import { db } from '../firebase';
 import { getAuth } from "firebase/auth";
-import { List } from '../components';
+import { List, SubmitPressable } from '../components';
 
 const INPUT_PLACEHOLDER = 'Add your item';
 const THEME = '#407BFF';
@@ -27,6 +27,7 @@ const { width } = Dimensions.get('window');
 const ListScreen = () => {
     const [item, setItem] = useState('');
     const [itemList, setItemList] = useState([]);
+    const [editingRow, setEditingRow] = useState(null);
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -74,9 +75,14 @@ const ListScreen = () => {
 
         // Todo, wrap in a try catch to catch any errors when executing this
         try {
+            if (editingRow !== null) {
+                onDeleteHandler(editingRow);
+            }
+            
+            clearForm();
             //declare a var itemRef to keep track of whats added
             const itemRef = await addDoc(collection(db, user.uid, 'Data', 'to-buy'), {
-                item: item, //item is a var we declared on top, which we use to track the input from the text input
+                desc: item, //item is a var we declared on top, which we use to track the input from the text input
             } );
             //addDoc returns a promise ref to the new doc, we nid to wait for the promise endpoint 
             //>> so we use await to wait for the method/func to complete
@@ -88,7 +94,7 @@ const ListScreen = () => {
             //can use uuid (a dependency to create different unit ids)
 
             console.log('completed', itemRef.id); //print id of the document completed
-            clearForm();
+            
         } catch (error) {
             console.log(error);
         }
@@ -99,11 +105,30 @@ const ListScreen = () => {
         try {
             await deleteDoc(doc(db, user.uid, 'Data','to-buy', id));
             //doc takes in database, collection name and the id of the doc u want to delete
-            showRes('Successfully deleted');
-            console.log('successfully deleted');
+
+            if (editingRow === null) {
+                showRes('Successfully deleted');
+                console.log('successfully deleted');
+            }
+            else {
+                showRes('Sucessfully edited');
+                setEditingRow(null);
+                console.log('successfully edited', editingRow);
+            }
         } catch (err) {
             console.log(err);
         }
+    };
+
+    const onEditHandler = (item) => {
+        setEditingRow(item.id);
+        setItem(item.desc);
+    };
+
+    const onClearHandler = () => {
+        setEditingRow(null);
+        clearForm();
+        console.log('Action cancelled');
     };
 
     const clearForm = () => {
@@ -118,7 +143,7 @@ const ListScreen = () => {
         >
             <SafeAreaView style={styles.container}>
                 <View style={styles.contentContainer}>
-                    <Text style={styles.headerText}>To-buy List</Text>
+                    <Text style={styles.titleText}>To-buy List</Text>
                     <View style={styles.listContainer}>
                         <FlatList //will generate a custom component to be able to see each item
                             data={itemList} //see all our items in the itemList
@@ -127,6 +152,7 @@ const ListScreen = () => {
                                     data={item} //item wld be like {id: '1', desc: 'buy lunch'}
                                     key={index}
                                     onDelete={onDeleteHandler}
+                                    onEdit={onEditHandler}
                                 />
                             )}
                             style={styles.list}
@@ -142,13 +168,37 @@ const ListScreen = () => {
                         placeholder={INPUT_PLACEHOLDER}
                         style={styles.itemInput}
                     />
+                    <View style={styles.buttonContainer}>
+
+                    {/*<Pressable
+                        onPress={onClearHandler}
+                        android_ripple={{ color: 'white' }}
+                        style={styles.button}
+                    >
+                        <Text style={styles.buttonText}>{ editingRow === null ? 'Clear' : 'Cancel' }</Text>
+                    </Pressable>
+
                     <Pressable
                         onPress={onSubmitHandler}
                         android_ripple={{ color: 'white' }}
                         style={styles.button}
                     >
-                        <Text style={styles.buttonText}>Add</Text>
-                    </Pressable>
+                        <Text style={styles.buttonText}>{ editingRow === null ? 'Add' : 'Edit' }</Text>
+                            </Pressable>*/}
+
+                    <SubmitPressable
+                        onPressHandler={onClearHandler}
+                        title={ editingRow === null ? 'Clear' : 'Cancel' }
+                        width={width}
+                    />
+                    <SubmitPressable
+                        onPressHandler={onSubmitHandler}
+                        title={ editingRow === null ? 'Add' : 'Edit' }
+                        width={width}
+                    />
+
+                    </View>
+
                 </View>
             </SafeAreaView>
         </KeyboardAvoidingView>
@@ -160,12 +210,12 @@ export default ListScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        //backgroundColor: '#fff',
      },
     contentContainer: {
         flex: 1,
-        backgroundColor: '#fff',
-        //#FAF9F6
+        backgroundColor: '#fff',//#FAF9F6
+        paddingHorizontal: 5,
     },
     listContainer: {
         flex: 1,
@@ -174,11 +224,10 @@ const styles = StyleSheet.create({
     list: {
         overflow: 'scroll',
     },
-    headerText: {
-        fontWeight: 'bold',
-        fontSize: 30,
+    titleText: {
+        fontSize: 35,
+        fontWeight: '300',
         marginLeft: 14,
-        marginTop: 14,
         marginBottom: 10,
         color: 'black',
     },
@@ -189,9 +238,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingVertical: 8,
         backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     itemInput: {
         width: width * 0.7,
+        height: '60%',
         borderWidth: 2,
         borderRadius: 20,
         borderColor: 'black',
@@ -199,16 +251,24 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         marginRight: 8,
     },
-    button: {
+    buttonContainer: {
+        //backgroundColor: 'pink',
+        justifyContent: 'center',
+        alignSelf: 'stretch',
+        alignContent: 'stretch',
+        justifyContent: 'center',
+    },
+    /*button: {
         width: width * 0.22,
         paddingVertical: 10,
         paddingHorizontal: 6,
         backgroundColor: 'black',
         borderRadius: 5,
+        marginBottom: 5,
         justifyContent: 'center',
         alignItems: 'center',
     },
     buttonText: {
         color: 'white',
-    },
+    },*/
 });

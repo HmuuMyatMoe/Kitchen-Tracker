@@ -2,8 +2,10 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 
+const cellColor = '#DDFFDC';
+
 const List = (props) => {
-    const { data, onDelete } = props;
+    const { data, onDelete, onEdit } = props;
 
     const DeleteIcon = () => (
         <TouchableOpacity onPress={() => onDelete(data.id)}>
@@ -11,9 +13,16 @@ const List = (props) => {
         </TouchableOpacity>
     );
 
+    const EditIcon = () => (
+        <TouchableOpacity onPress={() => onEdit(data)}>
+            <MaterialIcons name="edit" size={24} color="black" />
+        </TouchableOpacity>
+    )
+
     return (
         <View style={[styles.container, styles.containerShadow]}>
-            <Text style={styles.taskText}>{data.item}</Text>
+            <Text style={styles.taskText}>{data.desc}</Text>
+            <EditIcon />
             <DeleteIcon />
         </View>
     );
@@ -24,10 +33,10 @@ export default List;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'lightpink',
         flexDirection: 'row',
+        backgroundColor: '#D4FDD6',
         marginHorizontal: 14,
-        marginVertical: 2,
+        marginVertical: 5,
         paddingVertical: 5,
         paddingHorizontal: 6,
         alignItems: 'center',

@@ -1,18 +1,26 @@
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions, TextInput } from 'react-native';
 import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const width = Dimensions.get('window');
 
+const cellColor = '#FFDAE6';
 
 const Table = (props) => {
-    const { data, onDelete } = props;
+    const { data, onDelete, onEdit } = props;
 
     const DeleteIcon = () => (
         <TouchableOpacity onPress={() => onDelete(data.id)}>
-            <MaterialIcons name="delete" size={28} color="#407BFF" />
+            <MaterialIcons name="delete" size={28} color="black" />
         </TouchableOpacity>
+        //#407BFF
     );
+
+    const EditIcon = () => (
+        <TouchableOpacity onPress={() => onEdit(data)}>
+            <MaterialIcons name="edit" size={24} color="black" />
+        </TouchableOpacity>
+    )
 
     return (
         <View style={styles.container}>
@@ -26,7 +34,10 @@ const Table = (props) => {
                 <View style={styles.cellContainer}>
                 <Text style={styles.cellText}>{data.quantity}</Text>
                 </View>
+                <View style={styles.buttonContainer}>
+                <EditIcon />
                 <DeleteIcon />
+                </View>
             </View>
         </View>
     );
@@ -41,7 +52,7 @@ const styles = StyleSheet.create({
     },
     rowContainer: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: cellColor,
         flexDirection: 'row',
         marginHorizontal: 10,
         marginVertical: 1,
@@ -52,16 +63,26 @@ const styles = StyleSheet.create({
         borderRadius: 0,
     },
     cellContainer: {
-        //flex: 1,
-        backgroundColor: 'lightpink',
+        backgroundColor: cellColor,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 0,
-        borderEndWidth: 2,
-        borderEndColor: 'white',
+        borderEndWidth: 0,
+        marginHorizontal: 0,
+        borderEndColor: 'pink',
         height: '100%',
-        width: '30%',
+        width: '29%',
+        paddingVertical: 5,
+    },
+    buttonContainer: {
+        backgroundColor: cellColor,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderEndColor: 'pink',
+        height: '100%',
+        width: '16%',
         paddingVertical: 5,
     },
     /*containerShadow: {

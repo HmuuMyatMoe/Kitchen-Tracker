@@ -15,7 +15,7 @@ import React, { useState, useEffect } from 'react';
 import { query, collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
 
 import { db } from '../firebase';
-import { Table } from '../components';
+import { TextPressable, Table, TableHeader, SubmitPressable } from '../components';
 import { getAuth } from "firebase/auth";
 
 const INPUT_PLACEHOLDER = 'Add your item';
@@ -23,11 +23,13 @@ const THEME = '#407BFF';
 
 const { width } = Dimensions.get('window');
 
-const TableScreen = () => {
+const InventoryScreen = ({ navigation }) => {
     const [item, setItem] = useState('');
-    const [itemList, setItemList] = useState([]);
     const [date, setDate] = useState('');
     const [quantity, setQuantity] = useState('');
+    const [itemList, setItemList] = useState([]);
+
+    const [editingRow, setEditingRow] = useState(null);
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -75,6 +77,11 @@ const TableScreen = () => {
 
         // Todo, wrap in a try catch to catch any errors when executing this
         try {
+            if (editingRow !== null) {
+                onDeleteHandler(editingRow);
+            }
+
+            clearForm();
             //declare a var itemRef to keep track of whats added
             const itemRef = await addDoc(collection(db, user.uid, 'Data','inventory'), {
                 desc: item,
@@ -89,8 +96,8 @@ const TableScreen = () => {
 
             //we didnt specify an id in this case cus we want firebase to make one for us
             //can use uuid (a dependency to create different unit ids)
-            clearForm();
-            console.log('completed', itemRef.id); //print id of the document completed
+
+            console.log('added', itemRef.id); //print id of the document completed
             
         } catch (error) {
             console.log(error);
@@ -102,11 +109,31 @@ const TableScreen = () => {
         try {
             await deleteDoc(doc(db, user.uid, 'Data', 'inventory', id));
             //doc takes in database, collection name and the id of the doc u want to delete
-            showRes('Successfully deleted');
-            console.log('successfully deleted');
+            if (editingRow === null) {
+                showRes('Successfully deleted');
+            }
+
+            else {
+                showRes('Successfully edited');
+                setEditingRow(null);
+                console.log('edited', editingRow);
+            }
         } catch (err) {
             console.log(err);
         }
+    };
+
+    const onEditHandler = (item) => {
+        setEditingRow(item.id);
+        setItem(item.desc);
+        setDate(item.date);
+        setQuantity(item.quantity);
+    };
+
+    const onClearHandler = () => {
+        setEditingRow(null);
+        clearForm();
+        console.log('Action cancelled');
     };
 
     const clearForm = () => {
@@ -123,19 +150,14 @@ const TableScreen = () => {
         >
             <SafeAreaView style={styles.container}>
                 <View style={styles.contentContainer}>
-                    <Text style={styles.headerText}>Food Inventory List</Text>
+                    <Text style={styles.titleText}>Food Inventory List</Text>
+                    
                     <View style={styles.listContainer}>
-                        <View style={styles.rowContainer}>
-                            <View style={styles.cellContainer}>
-                            <Text style={styles.cellText}>Name</Text>
-                            </View>
-                            <View style={styles.cellContainer}>
-                            <Text style={styles.cellText}>Expiry Date</Text>
-                            </View>
-                            <View style={styles.cellContainer}>
-                            <Text style={styles.cellText}>Quantity</Text>
-                            </View>
-                        </View>
+                        <TextPressable
+                        onPressHandler={() => navigation.navigate('Food Inventory List')}
+                        title={'Check what is expiring soon'}
+                        />
+                        <TableHeader />
                         <FlatList //will generate a custom component to be able to see each item
                             data={itemList} //see all our items in the itemList
                             renderItem={({ item, index }) => (
@@ -143,12 +165,14 @@ const TableScreen = () => {
                                     data={item} //item wld be like {id: '1', desc: 'buy lunch'}
                                     key={index}
                                     onDelete={onDeleteHandler}
+                                    onEdit={onEditHandler}
                                 />
                             )}
                             style={styles.list}
                             showsVerticalScrollIndicator={false}
                         />
-                    </View>
+                        </View>
+                        
                 </View>
                 <View style={styles.formContainer}>
                     <View style={styles.inputContainer}>
@@ -174,60 +198,81 @@ const TableScreen = () => {
                         style={styles.itemInput}
                     />
                     </View>
+
+                    <View style={styles.buttonContainer}>
+                    {/*<Pressable
+                        onPress={onClearHandler}
+                        android_ripple={{ color: 'white' }}
+                        style={styles.button}
+                    >
+                        <Text style={styles.buttonText}>{ editingRow === null ? 'Clear' : 'Cancel' }</Text>
+                    </Pressable>
                     <Pressable
                         onPress={onSubmitHandler}
                         android_ripple={{ color: 'white' }}
                         style={styles.button}
                     >
-                        <Text style={styles.buttonText}>Add</Text>
-                    </Pressable>
+                        <Text style={styles.buttonText}>{ editingRow === null ? 'Add' : 'Edit' }</Text>
+                            </Pressable>*/}
+
+                    <SubmitPressable
+                        onPressHandler={onClearHandler}
+                        title={ editingRow === null ? 'Clear' : 'Cancel' }
+                        width={width}
+                    />
+                    <SubmitPressable
+                        onPressHandler={onSubmitHandler}
+                        title={ editingRow === null ? 'Add' : 'Edit' }
+                        width={width}
+                    />
+                    </View>
+
                 </View>
             </SafeAreaView>
         </KeyboardAvoidingView>
     );
 };
 
-export default TableScreen;
+export default InventoryScreen;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'pink',
-        justifyContent: 'center',
+        backgroundColor: 'white', 
      },
     contentContainer: {
         flex: 1,
-        backgroundColor: '#fff',
-        //#FAF9F6
+        //backgroundColor: 'grey', //#FAF9F6
+        alignItems :'flex-start',
+        paddingHorizontal: 18,
     },
     listContainer: {
-        flex: 1,
+        //backgroundColor: 'lightgreen',
         paddingBottom: 20, // Fix: Temporary workaround
+        alignItems: 'flex-start',
     },
     list: {
         overflow: 'scroll',
     },
-    headerText: {
-        fontWeight: 'bold',
-        fontSize: 30,
-        marginLeft: 14,
-        marginTop: 14,
+    titleText: {
+        fontSize: 35,
+        fontWeight: '300',
         marginBottom: 10,
         color: 'black',
     },
     formContainer: {
-        //position: 'absolute',
+        //position: 'relative',
         alignItems: 'center',
         justifyContent: 'center',
         bottom: 0,
         flexDirection: 'row',
-        //paddingHorizontal: 14,
-        paddingBottom: 15,
-        backgroundColor: '#fff',
+        paddingVertical: 5,
+        backgroundColor: 'white',
     },
     inputContainer: {
         alignItems: 'center',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        //backgroundColor: 'lightblue',
     },
     itemInput: {
         width: width * 0.7,
@@ -238,45 +283,22 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         marginRight: 8,
     },
-
-    button: {
-        width: width * 0.2,
-        paddingVertical: 10,
+    buttonContainer: {
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignSelf: 'stretch',
+    },
+    /*button: {
+        width: width * 0.21,
+        paddingVertical: 13,
         paddingHorizontal: 6,
         backgroundColor: 'black',
         borderRadius: 5,
+        marginBottom: 5,
         justifyContent: 'center',
         alignItems: 'center',
     },
     buttonText: {
         color: 'white',
-    },
-    rowContainer: {
-        backgroundColor: 'white',
-        flexDirection: 'row',
-        marginHorizontal: 10,
-        marginVertical: 1,
-        /*paddingVertical: 0,
-        paddingHorizontal: 0,*/
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 0,
-    },
-    cellContainer: {
-        backgroundColor: 'transparent',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 0,
-        borderEndWidth: 2,
-        borderEndColor: 'white',
-        height: '100%',
-        width: '30%',
-    },
-    cellText: {
-        fontWeight: 'bold',
-        flexWrap: 'wrap',
-        marginRight: 10,
-        marginHorizontal: 5,
-    },
+    },*/
 });

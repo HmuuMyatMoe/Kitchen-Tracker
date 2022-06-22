@@ -1,33 +1,35 @@
 import { StyleSheet, Text, Pressable } from 'react-native';
 import React from 'react';
 
-const AuthPressable = props => {
+const ForgetPassPressable = props => {
     const { onPressHandler, title } = props;
 
     return (
         <Pressable
             style={styles.button}
             onPress={onPressHandler}
-            android_ripple={{ color: '#FFF' }}
+            android_ripple={styles.ripple}
         >
             <Text style={styles.text}>{title}</Text>
         </Pressable>
     );
 };
 
-export default AuthPressable;
+export default ForgetPassPressable;
 
 const styles = StyleSheet.create({
     button: {
-        marginTop: 5,
-        paddingTop: 10,
+        paddingVertical: 5,
         width: '80%',
-        height: 45,
-        alignItems: 'center',
-        borderRadius: 4,
-        backgroundColor: 'black'
+        alignItems: 'flex-start',
     },
     text: {
-        color: 'white'
+        color: 'black',
+        textDecorationLine: 'underline',
+    },
+    ripple: {
+        color: 'lightblue',
+        radius: 160,
+        
     }
 });

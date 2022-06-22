@@ -10,9 +10,10 @@ import { auth } from '../firebase';
 import {
     MainScreen,
     LoginScreen,
+    ForgotPasswordScreen,
     SignUpScreen,
     ListScreen,
-    TableScreen,
+    InventoryScreen,
     SettingsScreen,
 } from '../screens';
 //import { MyTabBar } from '../components';
@@ -54,12 +55,17 @@ const AppNavigator = () => {
             />
             <Stack.Screen
                 name="Login"
-                options={{ headerTitle: 'Login' }}
+                options={{ headerTitle: ' ' }}
                 component={LoginScreen}
             />
             <Stack.Screen
+                name="Forgot Password"
+                options={{ headerTitle: ' ' }}
+                component={ForgotPasswordScreen}
+            />
+            <Stack.Screen
                 name="Sign Up"
-                options={{ headerShown: 'Sign Up' }}
+                options={{ headerTitle: ' ' }}
                 component={SignUpScreen}
             />
         </Stack.Navigator>
@@ -96,16 +102,17 @@ const AppNavigator = () => {
         <Tab.Screen
             name="Food Inventory List"
             options={{
-                //headerTitle: 'Food Inventory List',
+                headerTitle: '',
                 headerRight: () => <LogoutIcon />,
             }}
-            component={TableScreen}
+            component={InventoryScreen}
             
         >
         </Tab.Screen>
         <Tab.Screen
             name="To-buy List"
             options={{
+                headerTitle: '',
                 headerRight: () => <LogoutIcon />,
             }}
             component={ListScreen}
@@ -113,6 +120,7 @@ const AppNavigator = () => {
         <Tab.Screen
             name="Settings"
             options={{
+                headerTitle: '',
                 headerRight: () => <LogoutIcon />,
             }}
             component={SettingsScreen}
@@ -120,11 +128,28 @@ const AppNavigator = () => {
     </Tab.Navigator>
     );
 
+    const FeatureNavigator = () => (
+        <Stack.Navigator>
+            <Stack.Screen
+                name='Tabs'
+                component={TabNavigator}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Forgot Password"
+                options={{
+                    headerTitle: '',
+                }}
+                component={ForgotPasswordScreen}
+            />
+        </Stack.Navigator>
+    );
+
     return (
         /* Todo: Authentication */
         //conditionally render a screen based on isAuth value
         <NavigationContainer>
-            {isAuth ? <TabNavigator /> : <AuthNavigator />}
+            {isAuth ? <FeatureNavigator /> : <AuthNavigator />}
         </NavigationContainer> 
     );
 };
