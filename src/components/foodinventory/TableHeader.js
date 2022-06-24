@@ -6,13 +6,14 @@ const backgroundColor = 'pink';
 const TableHeader = props => {
     return (
         <View style={styles.rowContainer}>
-            <View style={styles.cellContainer}>
+            <View style={[styles.cellContainer, {width: '30%'}]}>
             <Text style={styles.cellText}>Name</Text>
             </View>
-            <View style={styles.cellContainer}>
-            <Text style={styles.cellText}>Expiry Date</Text>
+            <View style={[styles.cellContainer, , {width: '35%'}]}>
+            <Text style={styles.cellText}>Expiry Date
+            DD/MM/YYYY</Text>
             </View>
-            <View style={styles.cellContainer}>
+            <View style={[styles.cellContainer, {width: '25%'}]}>
             <Text style={styles.cellText}>Quantity</Text>
             </View>
             <View style={styles.fillerContainer}></View>
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
         //borderBottomColor: 'black',
         /*paddingVertical: 0,
         paddingHorizontal: 0,*/
-        alignItems: 'flex-start',
+        alignItems: 'center',
         alignSelf: 'stretch',
         justifyContent: 'center',
         borderRadius: 0,
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderEndColor: 'white',
         height: '100%',
-        width: '29%',
+        //width: '30%',
     },
     fillerContainer: {
         backgroundColor: backgroundColor,
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderEndColor: 'pink',
         height: '100%',
-        width: '16%',
+        width: '13%',
         paddingVertical: 5,
     },
     cellText: {
@@ -61,6 +62,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         marginRight: 10,
         marginHorizontal: 5,
+        textAlign: 'center',
     },
 });
 

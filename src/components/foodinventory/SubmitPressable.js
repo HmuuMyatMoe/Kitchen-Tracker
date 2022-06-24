@@ -6,7 +6,7 @@ const SubmitPressable = props => {
 
     return (
         <Pressable
-            style={[styles.button, {width: width*0.21}]}
+            style={[styles.button, {width: width}]}
             onPress={onPressHandler}
             android_ripple={{ color: 'white'}}
         >

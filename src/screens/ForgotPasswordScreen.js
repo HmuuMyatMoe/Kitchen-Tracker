@@ -33,7 +33,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         if (email.length === 0) {
             missingFieldsToast();
             return;
-        }
+        };
 
         const auth = getAuth();
 

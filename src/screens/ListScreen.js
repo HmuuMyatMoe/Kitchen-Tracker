@@ -16,7 +16,7 @@ import { query, collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/
 
 import { db } from '../firebase';
 import { getAuth } from "firebase/auth";
-import { List, SubmitPressable } from '../components';
+import { List, SubmitPressable, ItemTextInput } from '../components';
 
 const INPUT_PLACEHOLDER = 'Add your item';
 const THEME = '#407BFF';
@@ -161,12 +161,13 @@ const ListScreen = () => {
                     </View>
                 </View>
                 <View style={styles.formContainer}>
-                    <TextInput
-                        onChangeText={setItem}
+                    <ItemTextInput
+                        keyboardType={'default'}
+                        placeholder={'Add your item'}
                         value={item}
-                        selectionColor={THEME}
-                        placeholder={INPUT_PLACEHOLDER}
-                        style={styles.itemInput}
+                        textHandler={setItem}
+                        width={width * 0.7}
+                        height={'60%'}
                     />
                     <View style={styles.buttonContainer}>
 
@@ -189,12 +190,12 @@ const ListScreen = () => {
                     <SubmitPressable
                         onPressHandler={onClearHandler}
                         title={ editingRow === null ? 'Clear' : 'Cancel' }
-                        width={width}
+                        width={width * 0.21}
                     />
                     <SubmitPressable
                         onPressHandler={onSubmitHandler}
                         title={ editingRow === null ? 'Add' : 'Edit' }
-                        width={width}
+                        width={width * 0.21}
                     />
 
                     </View>

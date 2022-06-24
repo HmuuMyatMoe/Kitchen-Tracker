@@ -10,34 +10,53 @@ import {
     FlatList,
     ToastAndroid,
     Keyboard,
+    Modal,
+    TouchableOpacity,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { query, collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
 
 import { db } from '../firebase';
-import { TextPressable, Table, TableHeader, SubmitPressable } from '../components';
+import { TextPressable, Table, TableHeader, SubmitPressable, ItemTextInput } from '../components';
 import { getAuth } from "firebase/auth";
 
+import MaskInput, { Masks } from 'react-native-mask-input';
+import { MaskService } from 'react-native-masked-text';
+
+import DropDownPicker from 'react-native-dropdown-picker';
+
+import { MaterialCommunityIcons, MaterialIcons, Feather } from '@expo/vector-icons';
+
+import { checkDate } from '../components/foodinventory/CheckExp';
+
+
 const INPUT_PLACEHOLDER = 'Add your item';
-const THEME = '#407BFF';
+const THEME = 'rgba(0, 60, 37, 0.4)'; //#407BFF
 
 const { width } = Dimensions.get('window');
 
 const InventoryScreen = ({ navigation }) => {
+
     const [item, setItem] = useState('');
-    const [date, setDate] = useState('');
+    const [maskedDate, setMaskedDate] = useState('');
+    const [unmaskedDate, setUnmaskedDate] = useState('');
     const [quantity, setQuantity] = useState('');
+
     const [itemList, setItemList] = useState([]);
+    const [filteredList, setFilteredList] = useState([]);
 
     const [editingRow, setEditingRow] = useState(null);
+
+    const [numDays, setNumDays] = useState(null);
+    const [checkModalVisible, setCheckModalVisible] = useState(false);
 
     const auth = getAuth();
     const user = auth.currentUser;
     if (user === null) {
         while(user === null){
             user = auth.currentUser;
-        }
-    }
+        };
+    };
 
     useEffect(() => {
         // Expensive operation. Consider your app's design on when to invoke this.
@@ -57,6 +76,7 @@ const InventoryScreen = ({ navigation }) => {
             })
 
             setItemList([...items]); 
+            //console.log('itemList' , itemList[0].flippedDate);
         });
 
         return subscriber;
@@ -70,8 +90,20 @@ const InventoryScreen = ({ navigation }) => {
     // https://firebase.google.com/docs/firestore/manage-data/add-data#web-version-9_7
     //async is needed since we used await
     const onSubmitHandler = async () => {
-        if (item.length === 0 || date.length === 0 || quantity.length === 0) {
-            showRes('Description cannot be empty!');
+        if (item.length === 0 || unmaskedDate.length < 8 || quantity.length === 0) {
+            showRes('Description cannot be empty/incomplete!');
+            return;
+        }
+
+        const flippedDate = checkDate(unmaskedDate);
+
+        if ( flippedDate === null ) {
+            showRes('Please enter a valid expiry date!');
+            return;
+        }
+
+        if (quantity === '0') {
+            showRes('Quantity cannot be 0!');
             return;
         }
 
@@ -85,7 +117,9 @@ const InventoryScreen = ({ navigation }) => {
             //declare a var itemRef to keep track of whats added
             const itemRef = await addDoc(collection(db, user.uid, 'Data','inventory'), {
                 desc: item,
-                date: date,
+                maskedDate: maskedDate,
+                unmaskedDate: unmaskedDate,
+                flippedDate : flippedDate,
                 quantity: quantity, //item is a var we declared on top, which we use to track the input from the text input
             } );
             //addDoc returns a promise ref to the new doc, we nid to wait for the promise endpoint 
@@ -126,7 +160,8 @@ const InventoryScreen = ({ navigation }) => {
     const onEditHandler = (item) => {
         setEditingRow(item.id);
         setItem(item.desc);
-        setDate(item.date);
+        setMaskedDate(item.maskedDate);
+        setUnmaskedDate(item.unmaskedDate);
         setQuantity(item.quantity);
     };
 
@@ -138,9 +173,56 @@ const InventoryScreen = ({ navigation }) => {
 
     const clearForm = () => {
         setItem('');
-        setDate('');
+        setMaskedDate('');
+        setUnmaskedDate('');
         setQuantity('');
         Keyboard.dismiss();
+    };
+
+    const checkExpSoonHandler = () => {
+        const num = parseInt(numDays);
+        if (isNaN(num) || num < 0) {
+            showRes('Please enter a valid number of days');
+            return;
+        };
+        if (num > 365) {
+            showRes('Please enter a smaller number');
+            return;
+        };
+        checkExpiring(itemList, num);
+        setCheckModalVisible(!checkModalVisible);
+        console.log(filteredList);
+    };
+
+    const checkExpiring = (itemList, numDays) => {
+        const endDate = new Date(new Date().getTime() + (numDays*24*60*60*1000));
+    
+        const dd = String(endDate.getDate()).padStart(2, '0');
+        const mm = String(endDate.getMonth() + 1).padStart(2, '0'); //January is 0!
+        const yyyy = endDate.getFullYear();
+    
+        const flippedEndDate = yyyy + mm + dd;
+        console.log(flippedEndDate);
+    
+        const filtered = [];
+    
+        let numItems = itemList.length;
+        let i = 0;
+    
+        while (i < numItems) {
+            if (itemList[i].flippedDate <= flippedEndDate) {
+                filtered.push(itemList[i])
+            }
+            i += 1;
+        }
+        setFilteredList([...filtered]);   
+    };
+
+    const onCloseModalHandler = () => {
+        setFilteredList([]);
+        
+        setCheckModalVisible(!checkModalVisible);
+        console.log('closed', filteredList);
     };
 
     return (
@@ -149,14 +231,27 @@ const InventoryScreen = ({ navigation }) => {
             behavior={Platform.OS === 'ios' ? 'padding' : null}
         >
             <SafeAreaView style={styles.container}>
-                <View style={styles.contentContainer}>
+
+                <View style={styles.headContainer}>
                     <Text style={styles.titleText}>Food Inventory List</Text>
-                    
-                    <View style={styles.listContainer}>
-                        <TextPressable
-                        onPressHandler={() => navigation.navigate('Food Inventory List')}
-                        title={'Check what is expiring soon'}
-                        />
+                        <View style={styles.checkExpSoonContainer}>
+                            <TextPressable
+                            onPressHandler={checkExpSoonHandler}
+                            title={'Click here'}
+                            />
+                            <Text style={styles.subtitle}>to check items expiring in</Text>
+                            <TextInput
+                                style={styles.numDaysInput}
+                                placeholder={'no. of days'}
+                                keyboardType={'number-pad'}
+                                value={numDays}
+                                onChangeText={setNumDays}
+                                selectionColor={THEME} 
+                            />
+                            <Text style={styles.subtitle}>days</Text>
+                        </View>
+
+                        <View style={styles.listContainer}>
                         <TableHeader />
                         <FlatList //will generate a custom component to be able to see each item
                             data={itemList} //see all our items in the itemList
@@ -172,30 +267,74 @@ const InventoryScreen = ({ navigation }) => {
                             showsVerticalScrollIndicator={false}
                         />
                         </View>
-                        
                 </View>
+
+                <Modal
+                    animationType='slide'
+                    transparent={true}
+                    visible={checkModalVisible}
+                    onRequestClose={() => {
+                        console.log('Modal closed');
+                        setCheckModalVisible(!checkModalVisible);
+                    }}
+                >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalSubContainer}>
+                        <TouchableOpacity 
+                            onPress={onCloseModalHandler} 
+                            style={styles.closeModalPressable}
+                        >
+                        <MaterialCommunityIcons name='window-close' size={24} color='black' />
+                        </TouchableOpacity>
+                        <Text style={styles.modalHeader}>Items expiring in {numDays} days</Text>
+                        <TableHeader />
+                        <FlatList 
+                            data={filteredList} 
+                            renderItem={({ item, index }) => (
+                                <Table
+                                    data={item} 
+                                    key={index}
+                                    onDelete={onDeleteHandler}
+                                    onEdit={onEditHandler}
+                                />
+                            )}
+                            style={styles.list}
+                            showsVerticalScrollIndicator={false}
+                        />
+                        </View>
+                    </View>
+                </Modal>
+
                 <View style={styles.formContainer}>
                     <View style={styles.inputContainer}>
-                    <TextInput
-                        onChangeText={setItem}
+                    <ItemTextInput
+                        keyboardType={'default'}
+                        placeholder={'Add your item'}
                         value={item}
-                        selectionColor={THEME}
-                        placeholder={INPUT_PLACEHOLDER}
-                        style={styles.itemInput}
+                        textHandler={setItem}
+                        width={width * 0.7}
                     />
-                    <TextInput
-                        onChangeText={setDate}
-                        value={date}
-                        selectionColor={THEME}
-                        placeholder={'Expiry Date'}
+                    <MaskInput
+                        value={maskedDate}
+                        onChangeText={(masked, unmasked) => {
+                            setUnmaskedDate(unmasked);
+                            console.log('unmasked', unmasked);
+                            setMaskedDate(masked);
+                            console.log('masked', masked);
+                        }}
+                        //mask={[/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, '/']}
+                        mask={Masks.DATE_DDMMYYYY}
                         style={styles.itemInput}
-                    />
-                    <TextInput
-                        onChangeText={setQuantity}
-                        value={quantity}
+                        placeholder={'Expiry Date (DD/MM/YYYY)'}
                         selectionColor={THEME}
+                        keyboardType={'number-pad'}
+                    />
+                    <ItemTextInput
+                        keyboardType={'number-pad'}
                         placeholder={'Quantity'}
-                        style={styles.itemInput}
+                        value={quantity}
+                        textHandler={setQuantity}
+                        width={width * 0.7}
                     />
                     </View>
 
@@ -218,12 +357,12 @@ const InventoryScreen = ({ navigation }) => {
                     <SubmitPressable
                         onPressHandler={onClearHandler}
                         title={ editingRow === null ? 'Clear' : 'Cancel' }
-                        width={width}
+                        width={width * 0.21}
                     />
                     <SubmitPressable
                         onPressHandler={onSubmitHandler}
                         title={ editingRow === null ? 'Add' : 'Edit' }
-                        width={width}
+                        width={width * 0.21}
                     />
                     </View>
 
@@ -240,17 +379,37 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white', 
      },
-    contentContainer: {
+    headContainer: {
         flex: 1,
         //backgroundColor: 'grey', //#FAF9F6
         alignItems :'flex-start',
         paddingHorizontal: 18,
+    },
+    checkExpSoonContainer: {
+        //backgroundColor: 'orange',
+        flexDirection: 'row',
+        alignSelf: 'stretch',
+        alignItems: 'center',
+    },
+    numDaysInput: {
+        marginHorizontal: 5,
+        borderBottomWidth: 1,
+        borderColor: 'black',
+        paddingHorizontal: 5,
+        textAlign: 'center',
+        alignSelf: 'flex-start',
+        marginBottom: 20,
+    },
+    subtitle: {
+        paddingBottom: 20,
+        paddingLeft: 4,
     },
     listContainer: {
         //backgroundColor: 'lightgreen',
         paddingBottom: 20, // Fix: Temporary workaround
         alignItems: 'flex-start',
     },
+    
     list: {
         overflow: 'scroll',
     },
@@ -301,4 +460,33 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'white',
     },*/
+
+    modalContainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalSubContainer: {
+        backgroundColor: 'white',
+        paddingVertical: 20,
+        alignItems: 'center',
+        width: '96%',
+        borderRadius: 15,
+        alignItems: 'stretch'
+    },
+    closeModalPressable: {
+        alignSelf: 'flex-end',
+        paddingRight: 10,
+    },
+    modalHeader: {
+        fontSize: 30,
+        fontWeight: '300',
+        marginBottom: 10,
+        color: 'black',
+        textAlign: 'center',
+        paddingHorizontal: 20,
+        paddingTop: 5,
+        paddingBottom: 20,
+    },
 });

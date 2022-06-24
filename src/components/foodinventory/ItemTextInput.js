@@ -3,14 +3,13 @@ import React from 'react';
 
 const THEME = 'rgba(0, 60, 37, 0.2)'; //#3F3F3F
 
-const AuthTextInput = props => {
-    const { secureTextEntry, keyboardType, placeholder, value, textHandler } =
+const ItemTextInput = props => {
+    const { keyboardType, placeholder, value, textHandler, width, height } =
         props;
 
     return (
         <TextInput
-            style={styles.textInput}
-            secureTextEntry={secureTextEntry}
+            style={[styles.textInput, {width: width}, {height: height}]}
             placeholder={placeholder}
             keyboardType={keyboardType}
             value={value}
@@ -20,17 +19,15 @@ const AuthTextInput = props => {
     );
 };
 
-export default AuthTextInput;
+export default ItemTextInput;
 
 const styles = StyleSheet.create({
     textInput: {
-        alignSelf: 'center',
         borderWidth: 2,
+        borderRadius: 20,
         borderColor: 'black',
-        width: '80%',
-        height: 50,
-        paddingHorizontal: 8,
-        marginBottom: 10,
-        fontSize: 16
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        marginRight: 8,
     }
 });

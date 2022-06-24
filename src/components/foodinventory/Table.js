@@ -25,13 +25,13 @@ const Table = (props) => {
     return (
         <View style={styles.container}>
             <View style={styles.rowContainer}>
-                <View style={styles.cellContainer}>
+                <View style={[styles.cellContainer, {width: '29%'}]}>
                 <Text style={styles.cellText}>{data.desc}</Text>
                 </View>
-                <View style={styles.cellContainer}>
-                <Text style={styles.cellText}>{data.date}</Text>
+                <View style={[styles.cellContainer, {width: '35%'}]}>
+                <Text style={styles.cellText}>{data.maskedDate}</Text>
                 </View>
-                <View style={styles.cellContainer}>
+                <View style={[styles.cellContainer, {width: '24%'}]}>
                 <Text style={styles.cellText}>{data.quantity}</Text>
                 </View>
                 <View style={styles.buttonContainer}>
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         borderEndColor: 'pink',
         height: '100%',
-        width: '29%',
+        //width: '29%',
         paddingVertical: 5,
     },
     buttonContainer: {
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderEndColor: 'pink',
         height: '100%',
-        width: '16%',
+        width: '15%',
         paddingVertical: 5,
     },
     /*containerShadow: {

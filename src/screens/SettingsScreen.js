@@ -12,12 +12,13 @@ import {
     Dimensions,
     Keyboard,
     ToastAndroid,
+    Switch
 } from 'react-native';
 
 import { MaterialCommunityIcons, MaterialIcons, Feather } from '@expo/vector-icons';
 
 import { db } from '../firebase';
-import { getAuth, updateProfile, updateEmail, reauthenticateWithCredential } from "firebase/auth";
+import { getAuth, updateProfile, signOut } from "firebase/auth";
 import { SettingsPressable, EditModal, TextPressable, SubmitPressable } from '../components';
 
 //import {useSelector, useDispatch} from 'react-redux'; //useSelecter = i want to access my globalreduxstore and retrieve my countstore?
@@ -31,7 +32,8 @@ const { width } = Dimensions.get('window');
 const SettingsScreen = ({ navigation }) => {
 
     const [ nameModalVisible, setNameModalVisible ] = useState(false);
-    const [ emailModalVisible, setEmailModalVisible ] = useState(false);
+    const [ notifEnabled, setNotifEnabled ] = useState(false);
+    const [ notifDay, setNotifDay ] = useState('');
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -39,10 +41,8 @@ const SettingsScreen = ({ navigation }) => {
         while(user === null){
             user = auth.currentUser;
         }
-    }
-
+    };
     const [ newDisplayName, setNewDisplayName ] = useState(user.displayName);
-    const [ newEmail, setNewEmail ] = useState(user.email);
 
     const changeDisplayNameHandler = () => {
         const nameRef = updateProfile(auth.currentUser, {
@@ -59,38 +59,13 @@ const SettingsScreen = ({ navigation }) => {
         });
     };
 
-    const changeEmailHandler = () => {
-        const credentials = getAuth();
-
-        reauthenticateWithCredential(user, credentials.currentuser).then(() => {
-        // User re-authenticated.
-        }).catch((error) => {
-        // An error ocurred
-        // ...
-        });
-
-        const auth = getAuth();
-        updateEmail(auth.currentUser, newEmail).then(() => {
-            setEmailModalVisible(!emailModalVisible);
-            showRes('Email updated!');
-            //console.log('Name updated', emailRef);
-            //console.log(auth.currentUser);
-          }).catch((error) => {
-            showRes('Error, please try again');
-            console.log(error);
-          });
-          
-    };
-
     const showRes = (text) => {
         ToastAndroid.show(text, ToastAndroid.SHORT);
     };
 
     const onCancelHandler = () => {
         setNameModalVisible(false);
-        setEmailModalVisible(false);
         setNewDisplayName(user.displayName);
-        setNewEmail(user.email);
         showRes('Action cancelled');
         console.log('Action cancelled');
     };
@@ -103,13 +78,22 @@ const SettingsScreen = ({ navigation }) => {
     );
 
     const ChangeEmailIcon = () => (
-        <TouchableOpacity onPress={() => { setEmailModalVisible(!emailModalVisible) }}>
+        <TouchableOpacity onPress={() => navigation.navigate('Change Email') }>
             <Feather name="edit-2" size={22} color={iconColor} />
         </TouchableOpacity>
         //#407BFF
     );
     
+    const logoutHandler = () => {
+        // Todo: Authentication
+        signOut(auth).then(() => {
+            setisAuth(false);
+        })
+    };
 
+    const toggleSwitch = () => {
+        setNotifEnabled(previousState => !previousState);
+    }
 
     return (
         <KeyboardAvoidingView
@@ -151,63 +135,19 @@ const SettingsScreen = ({ navigation }) => {
                                 <SubmitPressable
                                     onPressHandler={onCancelHandler}
                                     title={'CANCEL'}
-                                    width={width}
+                                    width={width * 0.22}
                                 />
 
                                 <SubmitPressable
                                     onPressHandler={changeDisplayNameHandler}
-                                    title={'SAVE'}
-                                    width={width}
+                                    title={'UPDATE'}
+                                    width={width * 0.22}
                                 />
                             </View>
                         </View>
                     </View>
                     </Modal>
 
-                    <Modal
-                        animationType='slide'
-                        transparent={true}
-                        visible={emailModalVisible}
-                        onRequestClose={() => {
-                            console.log('Modal closed');
-                            setEmailModalVisible(!emailModalVisible);
-                        }}
-                    >
-                        
-                        <View style={styles.modalContainer}>
-                            <View style={styles.modalSubContainer}>
-                            <TouchableOpacity 
-                                onPress={() => onCancelHandler()} 
-                                style={styles.closeModalPressable}
-                            >
-                            <MaterialCommunityIcons name='window-close' size={24} color='black' />
-                            </TouchableOpacity>
-
-                            <Text style={styles.modalHeader}>Change your email</Text>
-                            <TextInput
-                                style={styles.textInput}
-                                keyboardType={'default'}
-                                value={newEmail}
-                                onChangeText={setNewEmail}
-                                selectionColor={'pink'}
-                            />
-                            
-                            <View style={styles.modalPressContainer}>
-                                <SubmitPressable
-                                    onPressHandler={onCancelHandler}
-                                    title={'CANCEL'}
-                                    width={width}
-                                />
-
-                                <SubmitPressable
-                                    onPressHandler={changeEmailHandler}
-                                    title={'SAVE'}
-                                    width={width}
-                                />
-                            </View>
-                        </View>
-                    </View>
-                    </Modal>
 
                     <Text style={styles.titleText}>Settings</Text>
                     <View style={styles.bigHeaderContainer}>
@@ -235,13 +175,41 @@ const SettingsScreen = ({ navigation }) => {
                     />
                     <TextPressable
                         title={'LOGOUT'}
+                        onPressHandler={logoutHandler}
                     />
                     </View>
 
-                    <View style={styles.bigHeaderContainer}>
-                        <MaterialCommunityIcons name="bell-outline" size={24} color={iconColor} />
-                        <Text style={styles.bigHeaderText}> Notification</Text>
+                    <View style={[styles.bigHeaderContainer, {justifyContent:'space-between'}]}>
+                        <View style={{flexDirection: 'row'}}>
+                            <MaterialCommunityIcons name="bell-outline" size={24} color={iconColor} />
+                            <Text style={styles.bigHeaderText}> Notification</Text>
+                        </View>
+
+                        <Switch
+                            trackColor={{ true: "#003C65", false: "rgba(0, 0, 0, 0.5)" }}
+                            thumbColor={notifEnabled ? "pink" : "white"}
+                            ios_backgroundColor="#3e3e3e" 
+                            onValueChange={() => setNotifEnabled(!notifEnabled)}
+                            value={notifEnabled}
+                        />            
                     </View>
+                    <Text style={styles.smallHeaderText}>Regularly notify me of items that are expiring in</Text>
+                    <View style={styles.itemContainer}>
+                        <View style={{flexDirection: 'row'}}>
+                        <TextInput
+                            style={styles.itemText}
+                            placeholder={'number of'}
+                            keyboardType={'number-pad'}
+                            value={notifDay}
+                            onChangeText={setNotifDay}
+                            selectionColor={'#003C65'}
+                        />
+                        <Text style={styles.itemText}>day(s)</Text>
+                        </View>
+                        <ChangeNameIcon />
+                    </View>
+
+
                     <View style={styles.bigHeaderContainer}>
                         <MaterialCommunityIcons name="palette-outline" size={24} color={iconColor} />
                         <Text style={styles.bigHeaderText}> Theme</Text>
@@ -290,6 +258,7 @@ const styles = StyleSheet.create({
     smallHeaderText: {
         fontWeight: '300',
         paddingTop: 10,
+        paddingBottom: 3,
     },
     itemContainer: {
         //backgroundColor: 'lightblue',
@@ -301,6 +270,7 @@ const styles = StyleSheet.create({
     itemText: {
         color: 'black',
         fontSize: 18,
+        paddingRight: 5,
     },
     accPressContainer: {
         //backgroundColor: 'lightblue',
@@ -345,9 +315,20 @@ const styles = StyleSheet.create({
     modalPressContainer: {
         width: '70%',
         flexDirection: 'row',
-        backgroundColor: 'pink',
+        //backgroundColor: 'pink',
         //alignSelf: 'stretch',
         justifyContent: 'space-evenly',
-    }
-
+    },
+    notifChangePressable: {
+        alignSelf: 'center',
+    },
+    notifHeaderContainer: {
+        flexDirection: 'row',
+        //backgroundColor: 'grey',
+        alignSelf: 'stretch',
+        alignItems: 'center',
+        borderBottomColor: 'rgba(0, 60, 37, 0.2)',
+        borderBottomWidth: 1,
+        justifyContent: 'space-between',
+    },
 }); 

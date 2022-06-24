@@ -15,6 +15,7 @@ import {
     ListScreen,
     InventoryScreen,
     SettingsScreen,
+    ChangeEmailScreen,
 } from '../screens';
 //import { MyTabBar } from '../components';
 
@@ -141,6 +142,13 @@ const AppNavigator = () => {
                     headerTitle: '',
                 }}
                 component={ForgotPasswordScreen}
+            />
+            <Stack.Screen
+                name="Change Email"
+                options={{
+                    headerTitle: '',
+                }}
+                component={ChangeEmailScreen}
             />
         </Stack.Navigator>
     );

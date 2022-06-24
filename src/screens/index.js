@@ -7,3 +7,4 @@ export { default as ForgotPasswordScreen } from './ForgotPasswordScreen';
 export { default as ListScreen } from './ListScreen';
 export { default as InventoryScreen } from './InventoryScreen';
 export { default as SettingsScreen } from './SettingsScreen';
+export { default as ChangeEmailScreen } from './ChangeEmailScreen';
