@@ -23,7 +23,7 @@ const { width } = Dimensions.get('window');
 const ChangeEmailScreen = ({ navigation }) => {
 
     const auth = getAuth();
-    const user = auth.currentUser;
+    let user = auth.currentUser;
     if (user === null) {
         while(user === null){
             user = auth.currentUser;
