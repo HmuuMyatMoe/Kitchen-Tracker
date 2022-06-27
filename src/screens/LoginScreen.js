@@ -33,9 +33,8 @@ const LoginScreen = ({ navigation }) => {
 
         return signInWithEmailAndPassword(auth, email, password).then((uc) => {
             const user = uc.user;
-
             console.log(user);
-            restoreForm();
+            
         }).catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;

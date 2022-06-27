@@ -45,6 +45,11 @@ const SettingsScreen = ({ navigation }) => {
     const [ newDisplayName, setNewDisplayName ] = useState(user.displayName);
 
     const changeDisplayNameHandler = () => {
+        if (newDisplayName === 0) {
+            showRes('Name cannot be empty!');
+            return;
+        }
+
         const nameRef = updateProfile(auth.currentUser, {
             displayName: newDisplayName
         }).then(() => {

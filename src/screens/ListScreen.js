@@ -77,6 +77,8 @@ const ListScreen = () => {
         try {
             if (editingRow !== null) {
                 onDeleteHandler(editingRow);
+                setEditingRow(null);
+                console.log('successfully edited', editingRow);
             }
             
             clearForm();
@@ -112,8 +114,6 @@ const ListScreen = () => {
             }
             else {
                 showRes('Sucessfully edited');
-                setEditingRow(null);
-                console.log('successfully edited', editingRow);
             }
         } catch (err) {
             console.log(err);
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         flex: 1,
-        paddingBottom: 70, // Fix: Temporary workaround
+        paddingBottom: 130, // Fix: Temporary workaround
     },
     list: {
         overflow: 'scroll',

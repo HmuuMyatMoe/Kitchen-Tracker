@@ -102,6 +102,11 @@ const InventoryScreen = ({ navigation }) => {
             return;
         }
 
+        if ( flippedDate === false ){
+            showRes('Item is already expired!');
+            return;
+        }
+
         if (quantity === '0') {
             showRes('Quantity cannot be 0!');
             return;
@@ -111,6 +116,8 @@ const InventoryScreen = ({ navigation }) => {
         try {
             if (editingRow !== null) {
                 onDeleteHandler(editingRow);
+                setEditingRow(null);
+                console.log('edited', editingRow);
             }
 
             clearForm();
@@ -130,6 +137,7 @@ const InventoryScreen = ({ navigation }) => {
 
             //we didnt specify an id in this case cus we want firebase to make one for us
             //can use uuid (a dependency to create different unit ids)
+            
 
             console.log('added', itemRef.id); //print id of the document completed
             
@@ -149,8 +157,6 @@ const InventoryScreen = ({ navigation }) => {
 
             else {
                 showRes('Successfully edited');
-                setEditingRow(null);
-                console.log('edited', editingRow);
             }
         } catch (err) {
             console.log(err);
@@ -318,9 +324,9 @@ const InventoryScreen = ({ navigation }) => {
                         value={maskedDate}
                         onChangeText={(masked, unmasked) => {
                             setUnmaskedDate(unmasked);
-                            console.log('unmasked', unmasked);
+                            //console.log('unmasked', unmasked);
                             setMaskedDate(masked);
-                            console.log('masked', masked);
+                            //console.log('masked', masked);
                         }}
                         //mask={[/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, '/']}
                         mask={Masks.DATE_DDMMYYYY}
@@ -377,7 +383,7 @@ export default InventoryScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white', 
+        backgroundColor: 'white',
      },
     headContainer: {
         flex: 1,
@@ -406,8 +412,10 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         //backgroundColor: 'lightgreen',
-        paddingBottom: 20, // Fix: Temporary workaround
+        paddingBottom: 115, // Fix: Temporary workaround
         alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        alignContent: 'stretch',
     },
     
     list: {

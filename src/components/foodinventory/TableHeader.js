@@ -9,7 +9,7 @@ const TableHeader = props => {
             <View style={[styles.cellContainer, {width: '30%'}]}>
             <Text style={styles.cellText}>Name</Text>
             </View>
-            <View style={[styles.cellContainer, , {width: '35%'}]}>
+            <View style={[styles.cellContainer, , {width: '36%'}]}>
             <Text style={styles.cellText}>Expiry Date
             DD/MM/YYYY</Text>
             </View>
@@ -27,15 +27,14 @@ const styles = StyleSheet.create({
     rowContainer: {
         backgroundColor: backgroundColor,
         flexDirection: 'row',
-        marginHorizontal: 10,
+        marginHorizontal: 5,
         marginBottom: 1,
         //borderBottomWidth: 2,
         //borderBottomColor: 'black',
         /*paddingVertical: 0,
         paddingHorizontal: 0,*/
-        alignItems: 'center',
-        alignSelf: 'stretch',
-        justifyContent: 'center',
+        alignSelf: 'flex-start',
+        justifyContent: 'flex-start',
         borderRadius: 0,
     },
     cellContainer: {
@@ -54,8 +53,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderEndColor: 'pink',
         height: '100%',
-        width: '13%',
-        paddingVertical: 5,
+        width: '10.5%',
+        //paddingVertical: 5,
     },
     cellText: {
         fontWeight: '500',

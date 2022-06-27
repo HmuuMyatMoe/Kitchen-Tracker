@@ -8,13 +8,13 @@ const checkDate = (unmaskedDate) => {
     today = yyyy + mm + dd;
     console.log('today', today);
 
-    console.log('unmasked2', unmaskedDate);
+    //console.log('unmasked2', unmaskedDate);
     const year = unmaskedDate[4] + unmaskedDate[5] + unmaskedDate[6] + unmaskedDate[7];
-    console.log(year);
+    //console.log(year);
     const month = unmaskedDate[2] + unmaskedDate[3];
-    console.log(month);
+    //console.log(month);
     const day = unmaskedDate[0] + unmaskedDate[1];
-    console.log(day);
+    //console.log(day);
 
     const flippedDate = year + month + day;
     console.log(flippedDate);
@@ -60,14 +60,12 @@ const checkDate = (unmaskedDate) => {
                 return false;
             }
         }
-
         return true;
     };
 
 
     if (flippedDate < today) {
-        showRes('Item is already expired!');
-        return null;
+        return false;
     }
     
     if (checkValidity(day, month, year)){
