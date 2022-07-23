@@ -32,9 +32,9 @@ const checkDate = (unmaskedDate) => {
         };
 
         const max_yr = 9999;
-        const min_yr = 1800;
+        const min_yr = 1;
 
-        if(year < min_yr || year > max_yr) { // 0 < month < 13 and 0 < day < 32 are already checked by masked input
+        if(year < min_yr || year > max_yr ) { // 0 < month < 13 and 0 < day < 32 are already checked by masked input
             return false;
         }
 
@@ -191,8 +191,46 @@ const checkExpiring = (itemList, numDays) => {
         }
         i += 1;
     }
-    setFilteredList([...filtered]);
+    return filtered;
     
 };
 
-export { checkDate };
+const searchFor = (itemList, search) => {
+    const searched = [];
+
+    let numItems = itemList.length;
+    console.log(numItems);
+    let i = 0;
+
+    while (i < numItems) {
+        if (itemList[i].desc === search) {
+            searched.push(itemList[i])
+        }
+        i += 1;
+    }
+    return searched;
+};
+
+const crossCheck = (inventoryList, toBuyList) => {
+    const checked = [];
+
+    let numInventory = inventoryList.length;
+    let numToBuy = toBuyList.length;
+    
+    let i = 0;
+    let j = 0;
+
+    while (i < numToBuy) {
+        while (j < numInventory) {
+            if (toBuyList[i].desc === inventoryList[j].desc) {
+                checked.push(inventoryList[j])
+            }
+            j += 1;
+        }
+        j = 0;
+        i += 1;
+    }
+    return checked;
+};
+
+export { checkDate , checkExpiring, searchFor, crossCheck};

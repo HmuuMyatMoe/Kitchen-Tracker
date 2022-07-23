@@ -211,7 +211,9 @@ const SettingsScreen = ({ navigation }) => {
                         />
                         <Text style={styles.itemText}>day(s)</Text>
                         </View>
-                        <ChangeNameIcon />
+                        <TouchableOpacity onPress={() => navigation.navigate('Change Email') }>
+                            <MaterialCommunityIcons name="calendar-check-outline" size={28} color={iconColor} />
+                        </TouchableOpacity>
                     </View>
 
 
@@ -236,7 +238,7 @@ const styles = StyleSheet.create({
     },
     subContainer: {
         flex: 1,
-        width: '90%',
+        width: '95%',
         alignItems: 'baseline',
         //backgroundColor: 'pink',
     },

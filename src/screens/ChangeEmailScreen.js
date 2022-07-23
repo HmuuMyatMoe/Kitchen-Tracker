@@ -12,7 +12,7 @@ import {
     Dimensions,
 } from 'react-native';
 import React, { useState } from 'react';
-import { getAuth, updateEmail, signInWithEmailAndPassword, reauthenticateWithCredential } from "firebase/auth";
+import { getAuth, updateEmail, signInWithEmailAndPassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 
 import { AuthTextInput, AuthPressable, SubmitPressable } from '../components';
 
@@ -42,14 +42,19 @@ const ChangeEmailScreen = ({ navigation }) => {
 
     const onUpdateHandler = () => {
         if (newEmail.length === 0) {
-            showRes('Missing fields, please try again!')
+            showRes('Missing fields, please try again!');
+            return;
+        };
+
+        if (newEmail === oldEmail) {
+            showRes('This is your current email!');
             return;
         };
         setEmailModalVisible(true);
     };
 
-    const reauthenticate = (user, uc) => {
-        reauthenticateWithCredential(user, uc).then(() => {
+    const reauthenticate = (user, credential) => {
+        /*reauthenticateWithCredential(user, credential).then(() => {
             console.log(user);
             console.log('User reauthenticated')
         }).catch((error) => {
@@ -57,13 +62,14 @@ const ChangeEmailScreen = ({ navigation }) => {
             const errorMessage = error.message;
 
             console.error('[reauthenticateHandler]', errorCode, errorMessage);
-        });
+        });*/
 
         updateEmail(auth.currentUser, newEmail).then(() => {
             Keyboard.dismiss();
             showRes('Email updated!');
-            //console.log('Name updated', emailRef);
-            //console.log(auth.currentUser);
+            
+            setOldEmail(newEmail);
+
           }).catch((error) => {
             showRes('Error, please try again');
             const errorCode = error.code;
@@ -94,7 +100,7 @@ const ChangeEmailScreen = ({ navigation }) => {
 
             console.error('[reLoginHandler]', errorCode, errorMessage);
         });
-         
+        
     };
 
     const onClearHandler = () => {

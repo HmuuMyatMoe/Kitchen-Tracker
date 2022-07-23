@@ -6,28 +6,28 @@ import {
     Keyboard,
     KeyboardAvoidingView,
     Platform,
-    SafeAreaView
+    SafeAreaView,
+    Pressable
 } from 'react-native';
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 import { AuthTextInput, AuthPressable, SwitchPressable, ForgetPassPressable } from '../components';
 import { auth } from '../firebase';
+import { TouchableOpacity } from 'react-native-web';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const[secureText, setSecureText] = useState(true);
 
-    const missingFieldsToast = () => {
-        ToastAndroid.show(
-            'Missing fields, please try again!',
-            ToastAndroid.SHORT
-        );
+    const showRes = (text) => {
+        ToastAndroid.show(text, ToastAndroid.SHORT);
     };
 
     const loginHandler = () => {
         if (email.length === 0 || password.length === 0) {
-            missingFieldsToast();
+            showRes('Missing fields, please try again!');
             return;
         }
 
@@ -39,14 +39,16 @@ const LoginScreen = ({ navigation }) => {
             const errorCode = error.code;
             const errorMessage = error.message;
 
+            if (errorCode === "auth/user-not-found") {
+                showRes("User not found, please register for a new account!");
+            }
+
+            if (errorCode === "auth/wrong-password") {
+                showRes("Wrong password!");
+            }
+
             console.error('[loginHandler]', errorCode, errorMessage);
         });
-    };
-
-    const restoreForm = () => {
-        setEmail('');
-        setPassword('');
-        Keyboard.dismiss();
     };
 
     return (
@@ -78,13 +80,20 @@ const LoginScreen = ({ navigation }) => {
 
                 <View style={styles.smallContainer}>
                 <Text>PASSWORD</Text>
+                <Pressable
+                    onPressIn={() => setSecureText(false)}
+                    onPressOut={() => setSecureText(true)}
+                    android_ripple={{ color: 'green' }}
+                >
+                    <Text>SHOW</Text>
+                </Pressable>
                 </View>
 
                 <AuthTextInput
                     value={password}
                     placeholder="Your Password"
                     textHandler={setPassword}
-                    secureTextEntry
+                    secureTextEntry={secureText}
                 />
 
                 <ForgetPassPressable
@@ -135,7 +144,9 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },*/
     smallContainer: {
+        flexDirection: 'row',
         width: '80%',
-        paddingBottom: 2
+        paddingBottom: 2,
+        justifyContent: 'space-between',
     }
 });

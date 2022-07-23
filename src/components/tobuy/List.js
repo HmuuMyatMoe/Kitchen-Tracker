@@ -34,10 +34,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: 'rgba(212,253,214,0.5)',//#D4FDD6
+        backgroundColor: 'rgba(212,253,214,1)',//#D4FDD6
         marginHorizontal: 14,
         marginVertical: 5,
-        paddingVertical: 5,
+        paddingVertical: 10,
         paddingHorizontal: 6,
         alignItems: 'center',
         borderRadius: 0,
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
         elevation: 5,
     },*/
     taskText: {
-        fontWeight: 'bold',
+        fontSize: 15,
         flex: 1,
         flexWrap: 'wrap',
         marginRight: 10,

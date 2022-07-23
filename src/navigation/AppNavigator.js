@@ -12,8 +12,8 @@ import {
     LoginScreen,
     ForgotPasswordScreen,
     SignUpScreen,
-    ListScreen,
     InventoryScreen,
+    ToBuyScreen,
     SettingsScreen,
     ChangeEmailScreen,
 } from '../screens';
@@ -116,7 +116,7 @@ const AppNavigator = () => {
                 headerTitle: '',
                 headerRight: () => <LogoutIcon />,
             }}
-            component={ListScreen}
+            component={ToBuyScreen}
         />
         <Tab.Screen
             name="Settings"

@@ -14,10 +14,10 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { query, collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { TextPressable, Table, TableHeader, SubmitPressable, ItemTextInput } from '../components';
 
 import { db } from '../firebase';
-import { TextPressable, Table, TableHeader, SubmitPressable, ItemTextInput } from '../components';
+import { query, collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import { getAuth } from "firebase/auth";
 
 import MaskInput, { Masks } from 'react-native-mask-input';
@@ -25,9 +25,9 @@ import { MaskService } from 'react-native-masked-text';
 
 import DropDownPicker from 'react-native-dropdown-picker';
 
-import { MaterialCommunityIcons, MaterialIcons, Feather } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
-import { checkDate } from '../components/foodinventory/CheckExp';
+import { checkDate, checkExpiring, searchFor } from '../components/foodinventory/CheckExp';
 
 
 const INPUT_PLACEHOLDER = 'Add your item';
@@ -43,12 +43,26 @@ const InventoryScreen = ({ navigation }) => {
     const [quantity, setQuantity] = useState('');
 
     const [itemList, setItemList] = useState([]);
-    const [filteredList, setFilteredList] = useState([]);
+    const [checkedList, setCheckedList] = useState([]);
+    const [searchedList, setSearchedList] = useState([]);
 
     const [editingRow, setEditingRow] = useState(null);
 
     const [numDays, setNumDays] = useState(null);
     const [checkModalVisible, setCheckModalVisible] = useState(false);
+
+    const [search, setSearch] = useState(null);
+    const [searchModalVisible, setSearchModalVisible] = useState(false);
+
+    //for dropdownpicker
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [items, setItems] = useState([
+        {label: 'Nearest Expiry', value: 'nearest expiry'},
+        {label: 'Furthest Expiry', value: 'furthest expiry'},
+        {label: 'A to Z', value: 'a to z'},
+        {label: 'Z to A', value: 'z to a'}
+    ]);
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -122,7 +136,7 @@ const InventoryScreen = ({ navigation }) => {
 
             clearForm();
             //declare a var itemRef to keep track of whats added
-            const itemRef = await addDoc(collection(db, user.uid, 'Data','inventory'), {
+            await setDoc(doc(db, user.uid, 'Data','inventory', (flippedDate + item + Date())), {
                 desc: item,
                 maskedDate: maskedDate,
                 unmaskedDate: unmaskedDate,
@@ -139,7 +153,7 @@ const InventoryScreen = ({ navigation }) => {
             //can use uuid (a dependency to create different unit ids)
             
 
-            console.log('added', itemRef.id); //print id of the document completed
+            console.log('added');
             
         } catch (error) {
             console.log(error);
@@ -191,44 +205,54 @@ const InventoryScreen = ({ navigation }) => {
             showRes('Please enter a valid number of days');
             return;
         };
-        if (num > 365) {
+        if (num > 99999999) {
             showRes('Please enter a smaller number');
             return;
         };
-        checkExpiring(itemList, num);
-        setCheckModalVisible(!checkModalVisible);
-        console.log(filteredList);
-    };
 
-    const checkExpiring = (itemList, numDays) => {
-        const endDate = new Date(new Date().getTime() + (numDays*24*60*60*1000));
-    
-        const dd = String(endDate.getDate()).padStart(2, '0');
-        const mm = String(endDate.getMonth() + 1).padStart(2, '0'); //January is 0!
-        const yyyy = endDate.getFullYear();
-    
-        const flippedEndDate = yyyy + mm + dd;
-        console.log(flippedEndDate);
-    
-        const filtered = [];
-    
-        let numItems = itemList.length;
-        let i = 0;
-    
-        while (i < numItems) {
-            if (itemList[i].flippedDate <= flippedEndDate) {
-                filtered.push(itemList[i])
-            }
-            i += 1;
+        const checked = checkExpiring(itemList, num);
+        setCheckedList(checked);
+
+        if (checked.length === 0) {
+            showRes('There are no items expiring in ' + numDays + ' days');
+            return;
         }
-        setFilteredList([...filtered]);   
+        setCheckModalVisible(!checkModalVisible);
+        console.log(checkedList);
     };
 
-    const onCloseModalHandler = () => {
-        setFilteredList([]);
+    const onCloseCheckModalHandler = () => {
+        setNumDays('');
+        setCheckedList([]);
         
         setCheckModalVisible(!checkModalVisible);
-        console.log('closed', filteredList);
+        console.log('closed', checkedList);
+    };
+
+    const searchHandler = () => {
+        if (search === '') {
+            showRes('Please enter an item');
+            return;
+        };
+
+        const searched = searchFor(itemList, search);
+        setSearchedList(searched);
+
+        if (searched.length === 0) {
+            showRes('There is no such item in the list');
+            return;
+        }
+
+        setSearchModalVisible(!checkModalVisible);
+        console.log(searchedList);
+    };
+
+    const onCloseSearchModalHandler = () => {
+        setSearch('');
+        setSearchedList([]);
+
+        setSearchModalVisible(!searchModalVisible);
+        console.log('closed', search);
     };
 
     return (
@@ -240,6 +264,8 @@ const InventoryScreen = ({ navigation }) => {
 
                 <View style={styles.headContainer}>
                     <Text style={styles.titleText}>Food Inventory List</Text>
+
+                    <View style={styles.subHeaderContainer}>
                         <View style={styles.checkExpSoonContainer}>
                             <TextPressable
                             onPressHandler={checkExpSoonHandler}
@@ -247,15 +273,48 @@ const InventoryScreen = ({ navigation }) => {
                             />
                             <Text style={styles.subtitle}>to check items expiring in</Text>
                             <TextInput
-                                style={styles.numDaysInput}
+                                style={[styles.numDaysInput, {marginBottom: 20}]}
                                 placeholder={'no. of days'}
                                 keyboardType={'number-pad'}
                                 value={numDays}
                                 onChangeText={setNumDays}
                                 selectionColor={THEME} 
+                                onSubmitEditing={checkExpSoonHandler}
                             />
                             <Text style={styles.subtitle}>days</Text>
                         </View>
+
+                        <View style={styles.searchContainer}>
+                            <DropDownPicker
+                                style={styles.picker}
+                                labelStyle={{width: '30%', fontWeight:'bold'}}
+                                containerStyle={styles.pickerContainer}
+                                open={open}
+                                value={value}
+                                items={items}
+                                setOpen={setOpen}
+                                setValue={setValue}
+                                setItems={setItems}
+                                placeholder={'Sort by'}
+                            >
+                            </DropDownPicker>
+
+                            <TextInput
+                                    style={styles.numDaysInput}
+                                    placeholder={'Search'}
+                                    value={search}
+                                    onChangeText={setSearch}
+                                    selectionColor={THEME} 
+                                    onSubmitEditing={searchHandler}
+                            />
+                            <TouchableOpacity 
+                                onPress={searchHandler} 
+                                style={styles.searchIconPressable}
+                            >
+                            <MaterialIcons name='search' size={27} color='black' />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
 
                         <View style={styles.listContainer}>
                         <TableHeader />
@@ -287,7 +346,7 @@ const InventoryScreen = ({ navigation }) => {
                     <View style={styles.modalContainer}>
                         <View style={styles.modalSubContainer}>
                         <TouchableOpacity 
-                            onPress={onCloseModalHandler} 
+                            onPress={onCloseCheckModalHandler} 
                             style={styles.closeModalPressable}
                         >
                         <MaterialCommunityIcons name='window-close' size={24} color='black' />
@@ -295,7 +354,43 @@ const InventoryScreen = ({ navigation }) => {
                         <Text style={styles.modalHeader}>Items expiring in {numDays} days</Text>
                         <TableHeader />
                         <FlatList 
-                            data={filteredList} 
+                            data={checkedList} 
+                            renderItem={({ item, index }) => (
+                                <Table
+                                    data={item} 
+                                    key={index}
+                                    onDelete={onDeleteHandler}
+                                    onEdit={onEditHandler}
+                                />
+                            )}
+                            style={styles.list}
+                            showsVerticalScrollIndicator={false}
+                        />
+                        </View>
+                    </View>
+                </Modal>
+
+                <Modal
+                    animationType='slide'
+                    transparent={true}
+                    visible={searchModalVisible}
+                    onRequestClose={() => {
+                        console.log('Modal closed');
+                        setSearchModalVisible(!searchModalVisible);
+                    }}
+                >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalSubContainer}>
+                        <TouchableOpacity 
+                            onPress={onCloseSearchModalHandler} 
+                            style={styles.closeModalPressable}
+                        >
+                        <MaterialCommunityIcons name='window-close' size={24} color='black' />
+                        </TouchableOpacity>
+                        <Text style={styles.modalHeader}>Results for "{search}"</Text>
+                        <TableHeader />
+                        <FlatList 
+                            data={searchedList} 
                             renderItem={({ item, index }) => (
                                 <Table
                                     data={item} 
@@ -391,11 +486,30 @@ const styles = StyleSheet.create({
         alignItems :'flex-start',
         paddingHorizontal: 18,
     },
+    subHeaderContainer: {
+        //backgroundColor: 'yellow',
+        flexDirection: 'row',
+        alignSelf: 'stretch',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        paddingVertical: 10,
+    },
     checkExpSoonContainer: {
         //backgroundColor: 'orange',
         flexDirection: 'row',
-        alignSelf: 'stretch',
         alignItems: 'center',
+    },
+    searchContainer: {
+        //backgroundColor: 'purple',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        //marginBottom: 20,
+        justifyContent: 'flex-end',
+    },
+    searchIconPressable: {
+        //alignSelf: 'center',
+        //backgroundColor: 'grey',
+        //marginBottom: 18,
     },
     numDaysInput: {
         marginHorizontal: 5,
@@ -404,7 +518,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         textAlign: 'center',
         alignSelf: 'flex-start',
-        marginBottom: 20,
+        //marginBottom: 20,
+        //backgroundColor: 'green',
+    },
+    picker: {
+        //backgroundColor: 'pink',
+    },
+    pickerContainer: {
+        //backgroundColor: 'grey',
+        width: '35%',
     },
     subtitle: {
         paddingBottom: 20,
@@ -428,7 +550,6 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     formContainer: {
-        //position: 'relative',
         alignItems: 'center',
         justifyContent: 'center',
         bottom: 0,

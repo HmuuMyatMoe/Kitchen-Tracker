@@ -7,6 +7,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
+    Pressable,
 } from 'react-native';
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, getAuth, updateProfile } from 'firebase/auth';
@@ -19,6 +20,7 @@ const SignUpScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [displayName, setDisplayName] = useState('');
+    const[secureText, setSecureText] = useState(true);
 
     // Todo: email, password states
 
@@ -97,7 +99,7 @@ const SignUpScreen = ({ navigation }) => {
                 flex: 1,
                 backgroundColor: 'white',
             }}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'position'}
+            behavior={Platform.OS === 'ios' ? 'padding' : null}
             contentContainerStyle={{
                 flex: 1,
                 backgroundColor: 'white',
@@ -136,13 +138,21 @@ const SignUpScreen = ({ navigation }) => {
 
                 <View style={styles.smallContainer}>
                 <Text>PASSWORD</Text>
+    
+                <Pressable
+                    onPressIn={() => setSecureText(false)}
+                    onPressOut={() => setSecureText(true)}
+                    android_ripple={{ color: 'green' }}
+                >
+                    <Text>SHOW</Text>
+                </Pressable>
                 </View>
 
                 <AuthTextInput
                     value={password}
                     placeholder="Your Password"
                     textHandler={setPassword}
-                    secureTextEntry
+                    secureTextEntry={secureText}
                 />
 
                 <AuthPressable
@@ -182,7 +192,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     smallContainer: {
+        flexDirection: 'row',
         width: '80%',
-        paddingBottom: 2
+        paddingBottom: 2,
+        justifyContent: 'space-between'
     }
 });
