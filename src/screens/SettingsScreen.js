@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     KeyboardAvoidingView,
     View,
@@ -19,6 +19,7 @@ import { MaterialCommunityIcons, MaterialIcons, Feather } from '@expo/vector-ico
 
 import { db } from '../firebase';
 import { getAuth, updateProfile, signOut } from "firebase/auth";
+import { query, collection, onSnapshot, addDoc, deleteDoc, doc, getDocs, getDoc } from 'firebase/firestore';
 import { SettingsPressable, EditModal, TextPressable, SubmitPressable } from '../components';
 
 //import {useSelector, useDispatch} from 'react-redux'; //useSelecter = i want to access my globalreduxstore and retrieve my countstore?
@@ -31,9 +32,7 @@ const { width } = Dimensions.get('window');
 
 const SettingsScreen = ({ navigation }) => {
 
-    const [ nameModalVisible, setNameModalVisible ] = useState(false);
-    const [ notifEnabled, setNotifEnabled ] = useState(false);
-    const [ notifDay, setNotifDay ] = useState('');
+    const [settings, setSettings] = useState([]);
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -42,6 +41,35 @@ const SettingsScreen = ({ navigation }) => {
             user = auth.currentUser;
         }
     };
+
+    useEffect(() => {
+        // Expensive operation. Consider your app's design on when to invoke this.
+        // Could use Redux to help on first application load.
+        // Todo: listen to firestore changes
+        //create a query obj to pass into onSnapshot to tell firebase what to look at/retrieve from firestore
+        const itemQuery = query(collection(db, user.uid, 'Data','settings'));
+
+        //subscriber to listen to changes
+        const subscriber = onSnapshot(itemQuery, (snapshot) => { //snapshot is the snapshot returned by the func
+            const items = []; //create a temp var
+
+            //push all data that we received from the snapshot into the items arr
+            snapshot.forEach(doc => {
+                items.push({ id: doc.id, ...doc.data() }) //want to push in an obj, items will end up being an arr of objs
+                //we want the id of each doc, and then destructure all the data for our document
+            })
+
+            setSettings([...items]); 
+        });
+
+        return subscriber;
+    }, []);
+
+
+    const [ nameModalVisible, setNameModalVisible ] = useState(false);
+    const [ notifEnabled, setNotifEnabled ] = useState(false);
+    const [ notifDay, setNotifDay ] = useState('');
+
     const [ newDisplayName, setNewDisplayName ] = useState(user.displayName);
 
     const changeDisplayNameHandler = () => {
@@ -98,6 +126,7 @@ const SettingsScreen = ({ navigation }) => {
 
     const toggleSwitch = () => {
         setNotifEnabled(previousState => !previousState);
+        console.log(notifEnabled);
     }
 
     return (

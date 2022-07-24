@@ -6,7 +6,7 @@ const checkDate = (unmaskedDate) => {
     const yyyy = today.getFullYear();
 
     today = yyyy + mm + dd;
-    console.log('today', today);
+    //console.log('today', today);
 
     //console.log('unmasked2', unmaskedDate);
     const year = unmaskedDate[4] + unmaskedDate[5] + unmaskedDate[6] + unmaskedDate[7];
@@ -17,7 +17,7 @@ const checkDate = (unmaskedDate) => {
     //console.log(day);
 
     const flippedDate = year + month + day;
-    console.log(flippedDate);
+    //console.log(flippedDate);
 
 
     const checkValidity = (day, month, year) => {
@@ -178,7 +178,7 @@ const checkExpiring = (itemList, numDays) => {
     const yyyy = endDate.getFullYear();
 
     const flippedEndDate = yyyy + mm + dd;
-    console.log(flippedEndDate);
+    //console.log(flippedEndDate);
 
     const filtered = [];
 
@@ -199,7 +199,7 @@ const searchFor = (itemList, search) => {
     const searched = [];
 
     let numItems = itemList.length;
-    console.log(numItems);
+    //console.log(numItems);
     let i = 0;
 
     while (i < numItems) {

@@ -28,11 +28,11 @@ const SignUpScreen = ({ navigation }) => {
         ToastAndroid.show(text, ToastAndroid.SHORT);
     };
 
-
+//T
     const storeUser = async (uid) => {
         try {
-            await setDoc(doc(db, uid, 'Data'), {
-            displayName: displayName
+            await setDoc(doc(db, uid, 'Data','settings','notification'), {
+            enabled: false
         });
 
         console.log('completed', uid);

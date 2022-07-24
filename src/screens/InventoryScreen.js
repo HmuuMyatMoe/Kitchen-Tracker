@@ -214,7 +214,7 @@ const InventoryScreen = ({ navigation }) => {
         setCheckedList(checked);
 
         if (checked.length === 0) {
-            showRes('There are no items expiring in ' + numDays + ' days');
+            showRes("There are no items expiring in " + numDays + " days' time");
             return;
         }
         setCheckModalVisible(!checkModalVisible);
@@ -281,11 +281,11 @@ const InventoryScreen = ({ navigation }) => {
                                 selectionColor={THEME} 
                                 onSubmitEditing={checkExpSoonHandler}
                             />
-                            <Text style={styles.subtitle}>days</Text>
+                            <Text style={styles.subtitle}>days' time</Text>
                         </View>
 
                         <View style={styles.searchContainer}>
-                            <DropDownPicker
+                            {/*<DropDownPicker
                                 style={styles.picker}
                                 labelStyle={{width: '30%', fontWeight:'bold'}}
                                 containerStyle={styles.pickerContainer}
@@ -297,7 +297,7 @@ const InventoryScreen = ({ navigation }) => {
                                 setItems={setItems}
                                 placeholder={'Sort by'}
                             >
-                            </DropDownPicker>
+                            </DropDownPicker>*/}
 
                             <TextInput
                                     style={styles.numDaysInput}

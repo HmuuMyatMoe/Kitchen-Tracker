@@ -19,6 +19,9 @@ import {
 } from '../screens';
 //import { MyTabBar } from '../components';
 
+
+  
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -44,6 +47,7 @@ const AppNavigator = () => {
         return subscriber; //dont want to call this func over and over agn, if our screen unmounts, we return this func
     }, []); //dependency array - if its empty, we only run whats inside useEffect only once upon mounting our screen
     //can put vars in this array then useEffect will listen to changes in this var and trigger whats inside it if theres any changes
+
 
     const AuthNavigator = () => (
         <Stack.Navigator 
