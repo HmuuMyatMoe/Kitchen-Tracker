@@ -79,6 +79,10 @@ const SignUpScreen = ({ navigation }) => {
             showRes('Sign Up successfully completed!') //prompt successful sign ups
 
         }).catch((error) => { //catch any errors, doc in Firebase
+
+            if (error.code === 'auth/email-already-in-use') {
+                showRes('Email already in use, please login or use another email!')
+            }
             const errorCode = error.code;
             const errorMessage = error.message;
 
