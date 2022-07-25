@@ -50,7 +50,7 @@ export default App = () => {
         };
       }, []);
 
-
+      
 
     console.log("done");
     return ( //set store, so that entire app hv access to the redux store
@@ -96,8 +96,8 @@ async function sendPushNotification(expoPushToken) {
     const message = {
       to: expoPushToken,
       sound: 'default',
-      title: 'Original Title',
-      body: 'And here is the body!',
+      title: 'Kitchen Tracker',
+      body: 'Your items are expiring in 3 days! Come check!',
       data: { someData: 'goes here' },
     };
   

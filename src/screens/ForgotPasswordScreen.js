@@ -29,13 +29,21 @@ const ForgotPasswordScreen = ({ navigation }) => {
         );
     };
 
+    const showRes = (text) => {
+        ToastAndroid.show(
+            text,
+            ToastAndroid.SHORT
+        );
+    };
+
     const passwordResetHandler = () => {
         if (email.length === 0) {
             missingFieldsToast();
             return;
         };
 
-        const auth = getAuth();
+    const auth = getAuth();
+
 
         return sendPasswordResetEmail(auth, email).then(() => {
                 Keyboard.dismiss();
@@ -43,6 +51,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
                 console.log('Password reset email sent');
             })
             .catch((error) => {
+                showRes('Error, please try again');
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 

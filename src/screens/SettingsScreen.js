@@ -65,12 +65,16 @@ const SettingsScreen = ({ navigation }) => {
         return subscriber;
     }, []);
 
+    
+
 
     const [ nameModalVisible, setNameModalVisible ] = useState(false);
     const [ notifEnabled, setNotifEnabled ] = useState(false);
     const [ notifDay, setNotifDay ] = useState('');
 
     const [ newDisplayName, setNewDisplayName ] = useState(user.displayName);
+    
+
 
     const changeDisplayNameHandler = () => {
         if (newDisplayName === 0) {
