@@ -213,7 +213,7 @@ const SettingsScreen = ({ navigation }) => {
                     />
                     </View>
 
-                    <View style={[styles.bigHeaderContainer, {justifyContent:'space-between'}]}>
+                    {/*<View style={[styles.bigHeaderContainer, {justifyContent:'space-between'}]}>
                         <View style={{flexDirection: 'row'}}>
                             <MaterialCommunityIcons name="bell-outline" size={24} color={iconColor} />
                             <Text style={styles.bigHeaderText}> Notification</Text>
@@ -249,8 +249,9 @@ const SettingsScreen = ({ navigation }) => {
                     <View style={styles.bigHeaderContainer}>
                         <MaterialCommunityIcons name="palette-outline" size={24} color={iconColor} />
                         <Text style={styles.bigHeaderText}> Theme</Text>
+                    </View>*/}
                     </View>
-                </View>
+                    
 
                 </SafeAreaView>
             </KeyboardAvoidingView>
@@ -267,7 +268,7 @@ const styles = StyleSheet.create({
     },
     subContainer: {
         flex: 1,
-        width: '95%',
+        width: '90%',
         alignItems: 'baseline',
         //backgroundColor: 'pink',
     },
@@ -275,6 +276,7 @@ const styles = StyleSheet.create({
         fontSize: 35,
         marginBottom: 10,
         color: 'black',
+        fontWeight: '300',
     },
     bigHeaderContainer: {
         flexDirection: 'row',

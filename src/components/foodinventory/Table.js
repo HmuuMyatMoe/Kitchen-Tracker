@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
         marginVertical: 1,
         /*paddingVertical: 0,
         paddingHorizontal: 0,*/
-        alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 0,
     },
@@ -72,7 +71,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         borderEndColor: 'pink',
         height: '100%',
-        //width: '29%',
         paddingVertical: 5,
     },
     buttonContainer: {
@@ -82,7 +80,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderEndColor: 'pink',
         height: '100%',
-        width: '15%',
+        width: '17%',
         paddingVertical: 5,
     },
     /*containerShadow: {

@@ -106,15 +106,16 @@ const SignUpScreen = ({ navigation }) => {
             }}
         >
             <SafeAreaView style={styles.container}>
-
+                
                 <Text style={[styles.welcomeText, styles.boldText]}>
-                    {'Create New Account'}
+                    {'Register'}
                 </Text>           
                 <SwitchPressable
                     onPressHandler={() => navigation.navigate('Login')}
                     title={'Already registered? Click here to login!'}
                 />
 
+                
                 <View style={styles.smallContainer}>
                 <Text>NAME</Text>
                 </View>
@@ -159,6 +160,7 @@ const SignUpScreen = ({ navigation }) => {
                     onPressHandler={signUpHandler}
                     title={'Sign Up'}
                 />
+                
 
             </SafeAreaView>
         </KeyboardAvoidingView>
@@ -173,16 +175,18 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
-        paddingTop: 40,
+        paddingTop: 30,
     },
     /*subContainer: {
         position: 'absolute',
         width: '100%',
         flexDirection: 'column',
-        //backgroundColor: 'pink',
-        alignSelf: 'flex-start',
+        backgroundColor: 'pink',
+        alignSelf: 'flex-end',
         justifyContent: 'center',
         alignItems: 'center',
+        //paddingTop: 40,
+        paddingBottom: 200,
     },*/
     boldText: {
         fontWeight: '300',

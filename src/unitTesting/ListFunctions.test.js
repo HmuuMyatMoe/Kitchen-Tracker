@@ -1,4 +1,4 @@
-import { checkDate, checkExpiring, searchFor, crossCheck } from "../components/foodinventory/CheckExp";
+import { checkDate, checkExpiring, searchFor, crossCheck } from "../components/foodinventory/ListFunctions";
 
 //test CheckDate
 let today = new Date();

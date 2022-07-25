@@ -13,14 +13,14 @@ import {
     Modal
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { query, collection, onSnapshot, addDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { query, collection, onSnapshot, addDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 
 import { db } from '../firebase';
 import { getAuth } from "firebase/auth";
 import { Table, List, SubmitPressable, ItemTextInput, TextPressable } from '../components';
 
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { searchFor, crossCheck } from '../components/foodinventory/CheckExp';
+import { searchFor, crossCheck } from '../components/foodinventory/ListFunctions';
 
 const INPUT_PLACEHOLDER = 'Add your item';
 const THEME = '#407BFF';
@@ -94,7 +94,7 @@ const ListScreen = () => {
             
             clearForm();
             //declare a var itemRef to keep track of whats added
-            const itemRef = await addDoc(collection(db, user.uid, 'Data', 'to-buy'), {
+            await setDoc(doc(db, user.uid, 'Data', 'to-buy',(item + Date())), {
                 desc: item, //item is a var we declared on top, which we use to track the input from the text input
             } );
             //addDoc returns a promise ref to the new doc, we nid to wait for the promise endpoint 
@@ -105,8 +105,6 @@ const ListScreen = () => {
 
             //we didnt specify an id in this case cus we want firebase to make one for us
             //can use uuid (a dependency to create different unit ids)
-
-            console.log('completed', itemRef.id); //print id of the document completed
             
         } catch (error) {
             console.log(error);
@@ -221,7 +219,7 @@ const ListScreen = () => {
                             onPressHandler={checkHandler}
                             title={'Click here'}
                             />
-                            <Text style={styles.subtitle}> to cross check with items in Food Inventory List</Text>
+                            <Text style={styles.subtitle}> to cross check with Food Inventory List</Text>
                         </View>
 
                         <View style={styles.searchContainer}>
@@ -386,8 +384,7 @@ const styles = StyleSheet.create({
      },
     subHeaderContainer: {
         //backgroundColor: 'orange',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        flexDirection: 'column',
         paddingTop: 15,
     },
     checkContainer: {
@@ -400,7 +397,7 @@ const styles = StyleSheet.create({
         //backgroundColor: 'pink',
         flexDirection: 'row',
         paddingRight: 15,
-        alignSelf: 'flex-start',
+        alignSelf: 'flex-end',
     },
     searchInput: {
         marginHorizontal: 5,
@@ -414,7 +411,7 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         flex: 1,
-        paddingBottom: 130, // Fix: Temporary workaround
+        paddingBottom: 10, // Fix: Temporary workaround
         //backgroundColor: 'pink',
     },
     list: {
@@ -435,6 +432,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         justifyContent: 'space-around',
         alignItems: 'center',
+        //backgroundColor:'grey'
     },
     itemInput: {
         width: width * 0.7,

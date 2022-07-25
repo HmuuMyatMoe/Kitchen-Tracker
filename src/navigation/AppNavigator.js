@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { onAuthStateChanged, signOut } from 'firebase/auth'; //use listener provided by firebase to observe state changes
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, MaterialCommunityIcons, Feather, AntDesign, Ionicons } from '@expo/vector-icons';
 
 import { auth } from '../firebase';
 import {
@@ -85,7 +85,7 @@ const AppNavigator = () => {
 
     const LogoutIcon = () => (
         <TouchableOpacity onPress={logoutHandler}>
-            <MaterialIcons name="logout" size={28} color="#407BFF" />
+            <MaterialIcons name="logout" size={25} color="#003c25" />
         </TouchableOpacity>
     );
 
@@ -97,8 +97,9 @@ const AppNavigator = () => {
         screenOptions={{
             headerPressColor: 'pink',
             tabBarHideOnKeyboard: true,
+            tabBarActiveBackgroundColor: 'black',
             tabBarInactiveBackgroundColor: 'black',
-            tabBarActiveTintColor: 'green',
+            tabBarActiveTintColor: '#f89fa5',
             tabBarInactiveTintColor: 'white',
            // lazy: true,
             tabBarStyle: {backgroundColor: 'black'},
@@ -109,6 +110,15 @@ const AppNavigator = () => {
             options={{
                 headerTitle: '',
                 headerRight: () => <LogoutIcon />,
+                tabBarIcon: ({focused}) => (
+                   <View>
+                      <MaterialCommunityIcons
+                        name="food-apple-outline"
+                        size={28}
+                        color={focused ? "#f89fa5" : "white"}
+                      />
+                    </View>
+                ),
             }}
             component={InventoryScreen}
             
@@ -119,6 +129,15 @@ const AppNavigator = () => {
             options={{
                 headerTitle: '',
                 headerRight: () => <LogoutIcon />,
+                tabBarIcon: ({focused}) => (
+                    <View>
+                       <AntDesign
+                         name="shoppingcart"
+                         size={28}
+                         color={focused ? "#f89fa5" : "white"}
+                       />
+                    </View>
+                 ),
             }}
             component={ToBuyScreen}
         />
@@ -127,6 +146,15 @@ const AppNavigator = () => {
             options={{
                 headerTitle: '',
                 headerRight: () => <LogoutIcon />,
+                tabBarIcon: ({focused}) => (
+                    <View>
+                       <Ionicons
+                         name="settings-outline"
+                         size={27}
+                         color={focused ? "#f89fa5" : "white"}
+                       />
+                     </View>
+                 ),
             }}
             component={SettingsScreen}
         />

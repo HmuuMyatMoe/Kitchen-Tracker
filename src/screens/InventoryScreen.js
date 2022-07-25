@@ -27,7 +27,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
-import { checkDate, checkExpiring, searchFor } from '../components/foodinventory/CheckExp';
+import { checkDate, checkExpiring, searchFor } from '../components/foodinventory/ListFunctions';
 
 
 const INPUT_PLACEHOLDER = 'Add your item';
@@ -269,12 +269,12 @@ const InventoryScreen = ({ navigation }) => {
                         <View style={styles.checkExpSoonContainer}>
                             <TextPressable
                             onPressHandler={checkExpSoonHandler}
-                            title={'Click here'}
+                            title={'Check'}
                             />
-                            <Text style={styles.subtitle}>to check items expiring in</Text>
+                            <Text style={styles.subtitle}>for items expiring in</Text>
                             <TextInput
                                 style={[styles.numDaysInput, {marginBottom: 20}]}
-                                placeholder={'no. of days'}
+                                placeholder={'no. of'}
                                 keyboardType={'number-pad'}
                                 value={numDays}
                                 onChangeText={setNumDays}
@@ -488,16 +488,16 @@ const styles = StyleSheet.create({
     },
     subHeaderContainer: {
         //backgroundColor: 'yellow',
-        flexDirection: 'row',
-        alignSelf: 'stretch',
+        flexDirection: 'column',
         alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        paddingVertical: 10,
+        paddingVertical: 5,
+        alignSelf: 'stretch',
     },
     checkExpSoonContainer: {
         //backgroundColor: 'orange',
         flexDirection: 'row',
         alignItems: 'center',
+        alignSelf: 'stretch',
     },
     searchContainer: {
         //backgroundColor: 'purple',
@@ -505,6 +505,7 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         //marginBottom: 20,
         justifyContent: 'flex-end',
+        alignSelf: 'flex-end'
     },
     searchIconPressable: {
         //alignSelf: 'center',
