@@ -2,6 +2,7 @@
   "expo": {
     "name": "kitchen-tracker",
     "slug": "kitchen-tracker",
+    "owner": "kitchen-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
