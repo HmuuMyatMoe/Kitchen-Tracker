@@ -59,9 +59,7 @@ const InventoryScreen = ({ navigation }) => {
     };
 
     useEffect(() => {
-        // Expensive operation. Consider your app's design on when to invoke this.
-        // Could use Redux to help on first application load.
-        // Todo: listen to firestore changes
+        // listen to firestore changes
         //create a query obj to pass into onSnapshot to tell firebase what to look at/retrieve from firestore
         const itemQuery = query(collection(db, user.uid, 'Data','inventory'));
 

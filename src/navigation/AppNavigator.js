@@ -23,14 +23,11 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
-    /**
-     * This hook serves as a listener to auth state changes provided by firebase.
-     */
+    //This hook serves as a listener to auth state changes provided by firebase.
     // isAuth hook
     const [isAuth, setisAuth] = useState(false); //declare a state to track whether the user is auth or not
 
     useEffect(() => {
-        // Todo: Authentication
         //subsriber is a mounting func, takes in the auth instance and 
         //we declare another func on what to do when the User is logged in or out
         const subscriber = onAuthStateChanged(auth, (authUser) => {
@@ -181,7 +178,6 @@ const AppNavigator = () => {
     );
 
     return (
-        /* Todo: Authentication */
         //conditionally render a screen based on isAuth value
         <NavigationContainer>
             {isAuth ? <FeatureNavigator /> : <AuthNavigator />}
