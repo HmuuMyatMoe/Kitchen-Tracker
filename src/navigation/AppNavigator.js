@@ -26,7 +26,7 @@ const AppNavigator = () => {
     /**
      * This hook serves as a listener to auth state changes provided by firebase.
      */
-    // Todo: isAuth hook
+    // isAuth hook
     const [isAuth, setisAuth] = useState(false); //declare a state to track whether the user is auth or not
 
     useEffect(() => {
