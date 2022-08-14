@@ -22,7 +22,6 @@ import { Table, List, SubmitPressable, ItemTextInput, TextPressable } from '../c
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { searchFor, crossCheck } from '../components/foodinventory/ListFunctions';
 
-const INPUT_PLACEHOLDER = 'Add your item';
 const THEME = '#407BFF';
 
 const { width } = Dimensions.get('window');
@@ -84,7 +83,7 @@ const ListScreen = () => {
             return;
         }
 
-        // Todo, wrap in a try catch to catch any errors when executing this
+        //wrap in a try catch to catch any errors when executing this
         try {
             if (editingRow !== null) {
                 onDeleteHandler(editingRow);
@@ -100,19 +99,15 @@ const ListScreen = () => {
             //addDoc returns a promise ref to the new doc, we nid to wait for the promise endpoint 
             //>> so we use await to wait for the method/func to complete
             //using await means we nid to specify async on top also
-            //addDoc - we nid to specify the collection which takes in database instance & collection name (path)
-            //also nid to specify the data that u are passing in when u create the doc
-
-            //we didnt specify an id in this case cus we want firebase to make one for us
-            //can use uuid (a dependency to create different unit ids)
             
         } catch (error) {
+            console.error('[onSubmitHandler]', error.code, error.message);
+            showRes(error.message + 'Please try again.');
             console.log(error);
         }
     };
 
     const onDeleteHandler = async (id) => {
-        // Todo
         try {
             await deleteDoc(doc(db, user.uid, 'Data','to-buy', id));
             //doc takes in database, collection name and the id of the doc u want to delete
@@ -214,31 +209,30 @@ const ListScreen = () => {
                 <Text style={styles.titleText}>To-buy List</Text>
 
                 <View style={styles.subHeaderContainer}>
-                        <View style={styles.checkContainer}>
-                            <TextPressable
-                            onPressHandler={checkHandler}
-                            title={'Click here'}
-                            />
-                            <Text style={styles.subtitle}> to cross check with Food Inventory List</Text>
-                        </View>
-
-                        <View style={styles.searchContainer}>
-                            <TextInput
-                                style={styles.searchInput}
-                                placeholder={'Search'}
-                                value={search}
-                                onChangeText={setSearch}
-                                selectionColor={THEME} 
-                                onSubmitEditing={searchHandler}
-                            />
-                            <TouchableOpacity 
-                                onPress={searchHandler}
-                            >
-                                <MaterialIcons name='search' size={27} color='black' />
-                            </TouchableOpacity>
-                        </View>
-                        
+                    <View style={styles.checkContainer}>
+                        <TextPressable
+                        onPressHandler={checkHandler}
+                        title={'Click here'}
+                        />
+                        <Text style={styles.subtitle}> to cross check with Food Inventory List</Text>
                     </View>
+
+                    <View style={styles.searchContainer}>
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder={'Search'}
+                            value={search}
+                            onChangeText={setSearch}
+                            selectionColor={THEME} 
+                            onSubmitEditing={searchHandler}
+                        />
+                        <TouchableOpacity 
+                            onPress={searchHandler}
+                        >
+                            <MaterialIcons name='search' size={27} color='black' />
+                        </TouchableOpacity>
+                    </View>        
+                </View>
 
                 <View style={styles.listContainer}>
                     <FlatList //will generate a custom component to be able to see each item
@@ -255,6 +249,7 @@ const ListScreen = () => {
                         showsVerticalScrollIndicator={false}
                     />
                 </View>
+
                 <View style={styles.formContainer}>
                     <ItemTextInput
                         keyboardType={'default'}
@@ -264,36 +259,19 @@ const ListScreen = () => {
                         width={width * 0.7}
                         height={'60%'}
                     />
+
                     <View style={styles.buttonContainer}>
-
-                    {/*<Pressable
-                        onPress={onClearHandler}
-                        android_ripple={{ color: 'white' }}
-                        style={styles.button}
-                    >
-                        <Text style={styles.buttonText}>{ editingRow === null ? 'Clear' : 'Cancel' }</Text>
-                    </Pressable>
-
-                    <Pressable
-                        onPress={onSubmitHandler}
-                        android_ripple={{ color: 'white' }}
-                        style={styles.button}
-                    >
-                        <Text style={styles.buttonText}>{ editingRow === null ? 'Add' : 'Edit' }</Text>
-                            </Pressable>*/}
-
-                    <SubmitPressable
-                        onPressHandler={onClearHandler}
-                        title={ editingRow === null ? 'Clear' : 'Cancel' }
-                        width={width * 0.21}
-                    />
-                    <SubmitPressable
-                        onPressHandler={onSubmitHandler}
-                        title={ editingRow === null ? 'Add' : 'Edit' }
-                        width={width * 0.21}
-                    />
+                        <SubmitPressable
+                            onPressHandler={onClearHandler}
+                            title={ editingRow === null ? 'Clear' : 'Cancel' }
+                            width={width * 0.21}
+                        />
+                        <SubmitPressable
+                            onPressHandler={onSubmitHandler}
+                            title={ editingRow === null ? 'Add' : 'Edit' }
+                            width={width * 0.21}
+                        />
                     </View>
-
                 </View>
             
                 <Modal
@@ -307,27 +285,27 @@ const ListScreen = () => {
                 >
                     <View style={styles.modalContainer}>
                         <View style={styles.modalSubContainer}>
-                        <TouchableOpacity 
-                            onPress={onCloseSearchModalHandler} 
-                            style={styles.closeModalPressable}
-                        >
-                        <MaterialCommunityIcons name='window-close' size={24} color='black' />
-                        </TouchableOpacity>
-                        <Text style={styles.modalHeader}>Results for "{search}"</Text>
+                            <TouchableOpacity 
+                                onPress={onCloseSearchModalHandler} 
+                                style={styles.closeModalPressable}
+                            >
+                                <MaterialCommunityIcons name='window-close' size={24} color='black' />
+                            </TouchableOpacity>
+                            <Text style={styles.modalHeader}>Results for "{search}"</Text>
                         
-                        <FlatList 
-                            data={searchedList} 
-                            renderItem={({ item, index }) => (
-                                <List
-                                    data={item} 
-                                    key={index}
-                                    onDelete={onDeleteHandler}
-                                    onEdit={onEditHandler}
-                                />
-                            )}
-                            style={styles.list}
-                            showsVerticalScrollIndicator={false}
-                        />
+                            <FlatList 
+                                data={searchedList} 
+                                renderItem={({ item, index }) => (
+                                    <List
+                                        data={item} 
+                                        key={index}
+                                        onDelete={onDeleteHandler}
+                                        onEdit={onEditHandler}
+                                    />
+                                )}
+                                style={styles.list}
+                                showsVerticalScrollIndicator={false}
+                            />
                         </View>
                     </View>
                 </Modal>
@@ -343,27 +321,27 @@ const ListScreen = () => {
                 >
                     <View style={styles.modalContainer}>
                         <View style={styles.modalSubContainer}>
-                        <TouchableOpacity 
-                            onPress={onCloseCheckModalHandler} 
-                            style={styles.closeModalPressable}
-                        >
-                        <MaterialCommunityIcons name='window-close' size={24} color='black' />
-                        </TouchableOpacity>
-                        <Text style={styles.modalHeader}>Items you already have</Text>
+                            <TouchableOpacity 
+                                onPress={onCloseCheckModalHandler} 
+                                style={styles.closeModalPressable}
+                            >
+                                <MaterialCommunityIcons name='window-close' size={24} color='black' />
+                            </TouchableOpacity>
+                            <Text style={styles.modalHeader}>Items you already have</Text>
                         
-                        <FlatList 
-                            data={checkedList} 
-                            renderItem={({ item, index }) => (
-                                <Table
-                                    data={item} 
-                                    key={index}
-                                    onDelete={() => showRes('Please delete item in the Food Inventory List page!')}
-                                    onEdit={() => showRes('Please edit item in the Food Inventory List page!')}
-                                />
-                            )}
-                            style={styles.list}
-                            showsVerticalScrollIndicator={false}
-                        />
+                            <FlatList 
+                                data={checkedList} 
+                                renderItem={({ item, index }) => (
+                                    <Table
+                                        data={item} 
+                                        key={index}
+                                        onDelete={() => showRes('Please delete item in the Food Inventory List page!')}
+                                        onEdit={() => showRes('Please edit item in the Food Inventory List page!')}
+                                    />
+                                )}
+                                style={styles.list}
+                                showsVerticalScrollIndicator={false}
+                            />
                         </View>
                     </View>
                 </Modal>
@@ -378,23 +356,19 @@ export default ListScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',//#FAF9F6
+        backgroundColor: '#fff',
         paddingHorizontal: 5,
-        //backgroundColor: 'grey',
      },
     subHeaderContainer: {
-        //backgroundColor: 'orange',
         flexDirection: 'column',
         paddingTop: 15,
     },
     checkContainer: {
-        //backgroundColor: 'grey',
         flexDirection: 'row',
         alignItems: 'flex-start',
         paddingLeft: 15,
     },
     searchContainer: {
-        //backgroundColor: 'pink',
         flexDirection: 'row',
         paddingRight: 15,
         alignSelf: 'flex-end',
@@ -406,13 +380,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         textAlign: 'center',
         alignSelf: 'flex-start',
-        //marginBottom: 20,
-        //backgroundColor: 'green',
     },
     listContainer: {
         flex: 1,
-        paddingBottom: 10, // Fix: Temporary workaround
-        //backgroundColor: 'pink',
+        paddingBottom: 10,
     },
     list: {
         overflow: 'scroll',
@@ -432,7 +403,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         justifyContent: 'space-around',
         alignItems: 'center',
-        //backgroundColor:'grey'
     },
     itemInput: {
         width: width * 0.7,
@@ -445,25 +415,11 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     buttonContainer: {
-        //backgroundColor: 'pink',
         justifyContent: 'center',
         alignSelf: 'stretch',
         alignContent: 'stretch',
         justifyContent: 'center',
     },
-    /*button: {
-        width: width * 0.22,
-        paddingVertical: 10,
-        paddingHorizontal: 6,
-        backgroundColor: 'black',
-        borderRadius: 5,
-        marginBottom: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: 'white',
-    },*/
     modalContainer: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.3)',

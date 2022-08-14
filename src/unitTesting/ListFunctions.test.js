@@ -1,5 +1,6 @@
 import { checkDate, checkExpiring, searchFor, crossCheck } from "../components/foodinventory/ListFunctions";
 
+//
 //test CheckDate
 let today = new Date();
 let dd = String(today.getDate()).padStart(2, '0');
@@ -24,7 +25,8 @@ test.each`
 });
 
 
-//test CheckExpiring
+//
+//to test CheckExpiring
 
 //func takes in the list of items to scan and the numDays (num of days before item expires)
 const tomorrow = new Date(new Date().getTime() + (1*24*60*60*1000));
@@ -110,7 +112,7 @@ const expectedList2127 = [ {desc: "D", flippedDate: flippedTomorrow}, {desc: "E"
                          {desc: "E", flippedDate: flippedTheDayAfter}, {desc:"C", flippedDate: flippedTheDayAfter}, 
                          {desc: "F", flippedDate: flippedTomorrow} ]
 
-//testing with item List 1
+//testing checkExpiring with item List 1 & 2
 test.each`
     itemList | numDays  | expected
     ${itemList1} | ${0} | ${expectedList10}
@@ -131,6 +133,11 @@ test.each`
 expect(checkExpiring(itemList, numDays)).toStrictEqual(expected);
 });
 
+
+
+
+//
+//to test searchFor
 //search for items in itemList1
 const expectedList1A = [ {desc:"A", flippedDate:"20072022"} ]
 const expectedList1Z = []
@@ -151,9 +158,11 @@ test.each`
 `("Return $expected when $search is entered", ({itemList, search, expected}) => {
 expect(searchFor(itemList, search)).toStrictEqual(expected);
 });
-                   
 
-//test crossCheck
+
+
+//
+//to test crossCheck
 const toBuyList1 = []
 const toBuyList2 = [ {id: "01AHD2937420NKFDL", desc:"A"}, {desc:"B"}, {desc:"H"} ]
 const toBuyList3 = [ {desc: "C"}, {desc: "E"}, {desc: "Z"} ]
@@ -175,7 +184,7 @@ const expectedL42 = []
 //crossCheck takes in the inventoryList and the toBuyList and checks for any matches 
 //in the description of each item (object) in the two arrays
 //returns an array of overlapped items (with data from the inventory list)
-
+//testing crossCheck
 test.each`
     itemList | toBuyList  | expected
     ${itemList1} | ${toBuyList1} | ${expectedL11}

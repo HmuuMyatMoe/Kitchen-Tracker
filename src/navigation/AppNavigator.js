@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { onAuthStateChanged, signOut } from 'firebase/auth'; //use listener provided by firebase to observe state changes
-import { MaterialIcons, MaterialCommunityIcons, Feather, AntDesign, Ionicons } from '@expo/vector-icons';
+import { MaterialIcons, MaterialCommunityIcons, AntDesign, Ionicons } from '@expo/vector-icons';
 
 import { auth } from '../firebase';
 import {
@@ -17,10 +17,7 @@ import {
     SettingsScreen,
     ChangeEmailScreen,
 } from '../screens';
-//import { MyTabBar } from '../components';
 
-
-  
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -77,7 +74,6 @@ const AppNavigator = () => {
     );
 
     const logoutHandler = () => {
-        // Todo: Authentication
         signOut(auth).then(() => {
             setisAuth(false);
         })
@@ -101,7 +97,6 @@ const AppNavigator = () => {
             tabBarInactiveBackgroundColor: 'black',
             tabBarActiveTintColor: '#f89fa5',
             tabBarInactiveTintColor: 'white',
-           // lazy: true,
             tabBarStyle: {backgroundColor: 'black'},
         }}
         >

@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const iconColor = 'rgba(0, 0, 0, 0.6)'; //#407BFF
 
-const List = (props) => {
+const List = props => {
     const { data, onDelete, onEdit } = props;
 
     const DeleteIcon = () => (
@@ -42,13 +42,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 0,
     },
-    /*containerShadow: {
-        shadowColor: '#171717',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.8,
-        shadowRadius: 2,
-        elevation: 5,
-    },*/
     taskText: {
         fontSize: 15,
         flex: 1,

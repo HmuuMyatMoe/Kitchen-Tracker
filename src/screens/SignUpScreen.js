@@ -20,27 +20,12 @@ const SignUpScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [displayName, setDisplayName] = useState('');
-    const[secureText, setSecureText] = useState(true);
-
-    // Todo: email, password states
+    const [secureText, setSecureText] = useState(true);
 
     const showRes = (text) => {
         ToastAndroid.show(text, ToastAndroid.SHORT);
     };
 
-//T
-    const storeUser = async (uid) => {
-        try {
-            await setDoc(doc(db, uid, 'Data','settings','notification'), {
-            enabled: false
-        });
-
-        console.log('completed', uid);
-        
-        } catch (err) {
-            console.log(err);
-        }
-    };
 
     const storeName = () => {
         const auth = getAuth();
@@ -52,6 +37,8 @@ const SignUpScreen = ({ navigation }) => {
             console.log(auth.currentUser);
 
         }).catch((error) => {
+            console.error('[storeName]', error.code, error.message);
+            showRes(error.message + 'Please try again.');
             console.log(error);
         });
     }
@@ -73,20 +60,25 @@ const SignUpScreen = ({ navigation }) => {
             const user = uc.user; //uc is the promise returned then we wan to get the user
             console.log(user); //see whats the returned obj
 
-            storeUser(user.uid);
             storeName();
             restoreForm(); //clear inputs upon successful sign up & dismiss keyboard
             showRes('Sign Up successfully completed!') //prompt successful sign ups
 
-        }).catch((error) => { //catch any errors, doc in Firebase
+        }).catch((error) => { //catch any errors
+
+            console.error('[signupHandler]', error.code, error.message);
 
             if (error.code === 'auth/email-already-in-use') {
-                showRes('Email already in use, please login or use another email!')
+                showRes('Email already in use, please login or use another email!');
+                return;
             }
-            const errorCode = error.code;
-            const errorMessage = error.message;
 
-            console.error('[signupHandler]', errorCode, errorMessage);
+            if (error.code === 'auth/invalid-email') {
+                showRes('Invalid email, please use a valid email!');
+                return;
+            }
+
+            showRes(error.message + 'Please try again.');
         });
     };
 
@@ -175,23 +167,12 @@ export default SignUpScreen;
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white', //#EBECF0
+        backgroundColor: 'white',
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
         paddingTop: 30,
     },
-    /*subContainer: {
-        position: 'absolute',
-        width: '100%',
-        flexDirection: 'column',
-        backgroundColor: 'pink',
-        alignSelf: 'flex-end',
-        justifyContent: 'center',
-        alignItems: 'center',
-        //paddingTop: 40,
-        paddingBottom: 200,
-    },*/
     boldText: {
         fontWeight: '300',
     },
@@ -204,5 +185,5 @@ const styles = StyleSheet.create({
         width: '80%',
         paddingBottom: 2,
         justifyContent: 'space-between'
-    }
+    },
 });

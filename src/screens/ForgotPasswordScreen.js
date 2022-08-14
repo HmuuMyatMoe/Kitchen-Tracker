@@ -10,24 +10,10 @@ import {
 import React, { useState } from 'react';
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
-import { AuthTextInput, AuthPressable, SwitchPressable } from '../components';
+import { AuthTextInput, AuthPressable} from '../components';
 
-const ForgotPasswordScreen = ({ navigation }) => {
+const ForgotPasswordScreen = () => {
     const [email, setEmail] = useState('');
-
-    const missingFieldsToast = () => {
-        ToastAndroid.show(
-            'Missing fields, please try again!',
-            ToastAndroid.SHORT
-        );
-    };
-
-    const successfulToast = () => {
-        ToastAndroid.show(
-            'Password Reset Email sent! Please check your email!',
-            ToastAndroid.SHORT
-        );
-    };
 
     const showRes = (text) => {
         ToastAndroid.show(
@@ -38,24 +24,32 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
     const passwordResetHandler = () => {
         if (email.length === 0) {
-            missingFieldsToast();
+            showRes('Missing fields, please try again!');
             return;
         };
 
     const auth = getAuth();
 
-
         return sendPasswordResetEmail(auth, email).then(() => {
                 Keyboard.dismiss();
-                successfulToast();
+                showRes('Password Reset Email sent! Please check your email!');
                 console.log('Password reset email sent');
             })
             .catch((error) => {
-                showRes('Error, please try again');
-                const errorCode = error.code;
-                const errorMessage = error.message;
+                console.error('[passwordResetHandler]', error.code, error.message);
+
+                if (error.code === 'auth/user-not-found') {
+                    showRes('Please use the email you used for this account!');
+                    return;
+                }
+    
+                if (error.code === 'auth/invalid-email') {
+                    showRes('Invalid email, please use a valid email!');
+                    return;
+                }
+                showRes(error.message + 'Please try again');
                 
-                console.error('[passwordResetHandler]', errorCode, errorMessage);
+                
             });
     }
 
@@ -100,7 +94,7 @@ export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#fff', //#EBECF0
+        backgroundColor: '#fff',
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',

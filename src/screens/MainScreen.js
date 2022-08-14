@@ -10,13 +10,13 @@ const MainScreen = ({ navigation }) => {
             resizeMode='cover' 
             style={styles.image}
             >
-            <Pressable
-                style={styles.button}
-                onPress={() => navigation.navigate('Login')}
-                android_ripple={styles.ripple}
-            >
-            <Text style={styles.text}>Welcome! Click To Sign Up/Login</Text>
-            </Pressable>
+                <Pressable
+                    style={styles.button}
+                    onPress={() => navigation.navigate('Login')}
+                    android_ripple={styles.ripple}
+                >
+                    <Text style={styles.text}>Welcome! Click To Sign Up/Login</Text>
+                </Pressable>
             </ImageBackground>
         </View>
     );
@@ -26,7 +26,7 @@ export default MainScreen;
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'pink', //#EBECF0
+        backgroundColor: 'pink',
         flex: 1,
         paddingVertical: 0,
         alignItems: 'center',

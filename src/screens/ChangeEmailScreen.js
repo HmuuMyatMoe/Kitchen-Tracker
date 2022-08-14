@@ -10,17 +10,18 @@ import {
     TouchableOpacity,
     TextInput,
     Dimensions,
+    Pressable,
 } from 'react-native';
 import React, { useState } from 'react';
-import { getAuth, updateEmail, signInWithEmailAndPassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import { getAuth, updateEmail, signInWithEmailAndPassword } from "firebase/auth";
 
 import { AuthTextInput, AuthPressable, SubmitPressable } from '../components';
 
-import { MaterialCommunityIcons, MaterialIcons, Feather } from '@expo/vector-icons';
+import { MaterialCommunityIcons,} from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const ChangeEmailScreen = ({ navigation }) => {
+const ChangeEmailScreen = () => {
 
     const auth = getAuth();
     let user = auth.currentUser;
@@ -35,6 +36,7 @@ const ChangeEmailScreen = ({ navigation }) => {
 
     const [ oldEmail, setOldEmail ] = useState('');
     const [ oldPassword, setOldPassword ] = useState('');
+    const [secureText, setSecureText] = useState(true);
 
     const showRes = (text) => {
         ToastAndroid.show(text, ToastAndroid.SHORT);
@@ -53,38 +55,42 @@ const ChangeEmailScreen = ({ navigation }) => {
         setEmailModalVisible(true);
     };
 
-    const reauthenticate = (user, credential) => {
-        /*reauthenticateWithCredential(user, credential).then(() => {
-            console.log(user);
-            console.log('User reauthenticated')
-        }).catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-
-            console.error('[reauthenticateHandler]', errorCode, errorMessage);
-        });*/
+    const reauthenticate = () => {
 
         updateEmail(auth.currentUser, newEmail).then(() => {
             Keyboard.dismiss();
-            showRes('Email updated!');
+            showRes('Email updated! Please restart the app to see the change reflected in the app');
             
             setOldEmail(newEmail);
 
           }).catch((error) => {
-            showRes('Error, please try again');
-            const errorCode = error.code;
-            const errorMessage = error.message;
-                
-            console.error('[changeEmailHandler]', errorCode, errorMessage);
+            console.error('[changeEmailHandler]', error.code, error.message);
+
+            if (error.code === 'auth/email-already-in-use') {
+                showRes('Email already in use, please login or use another email!');
+                return;
+            }
+
+            if (error.code === 'auth/invalid-email') {
+                showRes('Invalid email, please use a valid email!');
+                return;
+            }
+            
+            showRes(error.message + 'Please try again'); 
           }); 
 
     };
 
     const changeEmailHandler = () => {
-        if (newEmail.length === 0) {
+        if (newEmail.length === 0 || oldEmail.length === 0 || oldPassword.length === 0) {
             showRes('Missing fields, please try again!')
             return;
         };
+
+        if (oldEmail !== user.email) {
+            showRes('Please key in your current email! Please enter in small letters')
+            return;
+        }
 
         signInWithEmailAndPassword(auth, oldEmail, oldPassword).then((uc) => {
             reauthenticate(user, uc);
@@ -94,11 +100,14 @@ const ChangeEmailScreen = ({ navigation }) => {
             console.log('uc', uc);
             
         }).catch((error) => {
-            showRes('Error, please try again!')
-            const errorCode = error.code;
-            const errorMessage = error.message;
+            console.error('[reLoginHandler]', error.code, error.message);
 
-            console.error('[reLoginHandler]', errorCode, errorMessage);
+            if (error.code === 'auth/wrong-password') {
+                showRes('Wrong password!');
+                return;
+            }
+            
+            showRes(error.message + 'Please try again.');
         });
         
     };
@@ -174,13 +183,24 @@ const ChangeEmailScreen = ({ navigation }) => {
                                         onChangeText={setOldEmail}
                                         placeholder={'Your old email'}
                                     />
+
+                                    <View style={styles.showContainer}>
+                                        <Pressable
+                                            onPressIn={() => setSecureText(false)}
+                                            onPressOut={() => setSecureText(true)}
+                                            android_ripple={{ color: 'green' }}
+                                        >
+                                            <Text>SHOW</Text>
+                                        </Pressable>
+                                    </View>
+
                                     <TextInput
                                         style={styles.textInput}
                                         keyboardType={'default'}
                                         value={oldPassword}
                                         onChangeText={setOldPassword}
                                         placeholder={'Your password'}
-                                        secureTextEntry
+                                        secureTextEntry={secureText}
                                     />
                                     
                                         <View style={styles.modalPressContainer}>
@@ -210,7 +230,7 @@ export default ChangeEmailScreen;
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#fff', //#EBECF0
+        backgroundColor: '#fff',
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -265,7 +285,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'black',
         height: 50,
-        marginTop: 10,
+        marginBottom: 3,
         fontSize: 16,
         alignSelf: 'center',
         width: '90%',
@@ -275,9 +295,13 @@ const styles = StyleSheet.create({
     modalPressContainer: {
         width: '70%',
         flexDirection: 'row',
-        //backgroundColor: 'pink',
-        //alignSelf: 'stretch',
         justifyContent: 'space-evenly',
         paddingTop: 20,
+    },
+    showContainer: {
+        width: '90%',
+        alignSelf: 'center',
+        alignItems: 'flex-end',
+        justifyContent: 'space-around',
     },
 });

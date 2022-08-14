@@ -3,7 +3,6 @@ import {
     View,
     Text,
     ToastAndroid,
-    Keyboard,
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
@@ -14,7 +13,6 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 
 import { AuthTextInput, AuthPressable, SwitchPressable, ForgetPassPressable } from '../components';
 import { auth } from '../firebase';
-import { TouchableOpacity } from 'react-native-web';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -36,18 +34,20 @@ const LoginScreen = ({ navigation }) => {
             console.log(user);
             
         }).catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
 
-            if (errorCode === "auth/user-not-found") {
+            console.error('[loginHandler]', error.code, error.message);
+
+            if (error.code === "auth/user-not-found") {
                 showRes("User not found, please register for a new account!");
+                return;
             }
 
-            if (errorCode === "auth/wrong-password") {
+            if (error.code === "auth/wrong-password") {
                 showRes("Wrong password!");
+                return;
             }
 
-            console.error('[loginHandler]', errorCode, errorMessage);
+            showRes(error.message + 'Please try again.');
         });
     };
 
@@ -116,21 +116,13 @@ export default LoginScreen;
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white', //#EBECF0
+        backgroundColor: 'white',
         flex: 1,
         alignItems: 'center',
         alignContent: 'center',
         justifyContent: 'flex-start',
         paddingTop: 40,
     },
-    /*subContainer: {
-        position: 'relative',
-        flexDirection: 'column',
-        //backgroundColor: 'pink',
-        alignSelf: 'stretch',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-    },*/
     boldText: {
         fontWeight: '300',
     },
@@ -139,10 +131,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 0,
     },
-    /*authText: {
-        fontSize: 20,
-        marginBottom: 10,
-    },*/
     smallContainer: {
         flexDirection: 'row',
         width: '80%',

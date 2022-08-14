@@ -6,7 +6,7 @@ const width = Dimensions.get('window');
 
 const cellColor = '#FFDAE6';
 
-const Table = (props) => {
+const Table = props => {
     const { data, onDelete, onEdit } = props;
 
     const DeleteIcon = () => (
@@ -56,8 +56,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginHorizontal: 10,
         marginVertical: 1,
-        /*paddingVertical: 0,
-        paddingHorizontal: 0,*/
         justifyContent: 'center',
         borderRadius: 0,
     },
@@ -83,13 +81,6 @@ const styles = StyleSheet.create({
         width: '17%',
         paddingVertical: 5,
     },
-    /*containerShadow: {
-        shadowColor: '#171717',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.8,
-        shadowRadius: 2,
-        elevation: 5,
-    },*/
     cellText: {
         fontWeight: '400',
         color: 'black',

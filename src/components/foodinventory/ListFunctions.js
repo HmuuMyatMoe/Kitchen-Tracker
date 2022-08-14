@@ -38,9 +38,9 @@ const checkDate = (unmaskedDate) => {
             return false;
         }
 
-            //check date for special months
-            //April, June, September and November only have 30 days
-            //Feburary have 29 days if its a leap year, otherwise only 28 days
+        //check date for special months
+        //April, June, September and November only have 30 days
+        //Feburary have 29 days if its a leap year, otherwise only 28 days
         if( month === 2 ) {
             if(isLeap(year) && day <= 29) {
                 return true;
@@ -51,7 +51,7 @@ const checkDate = (unmaskedDate) => {
             return false;
         }
 
-            //if it is April, June, September and November, we ensure day <= 30 days
+        //if it is April, June, September and November, we ensure day <= 30 days
         if ( month === 4 || month === 6 || month === 9 || month === 11 ) {
             if(day <= 30) {
                 return true;
@@ -73,102 +73,6 @@ const checkDate = (unmaskedDate) => {
     }
     return null;
 };
-
-
-//Function takes in the array itemList (containing all the item data), today's date (in yyyymmdd)
-//and numDays (variable representing the num of days btn today and the expiry date)
-//and check which items are expiring in numDays time
-//returns a set of items which are expiring in numDays time
-//items expiring today = items expiring in 0 days' time and so on
-/*const checkExpiring = (flippedDate, today, todayDay, todayMonth, todayYear, numDays) => {
-
-    if (numDays === 0) {
-        return today;
-    }
-
-    //we first find the date which is numDays away from today
-    let endYear = todayYear;
-    let endMonth = todayMonth;
-    let endDay = todayDay;
-
-    if (numDays === 365) {
-        if (!isLeap(endYear)) {
-            endYear += 1;
-            numDays -= 365;
-            return (endYear + endMonth + endDay);
-        }
-    }
-
-    while (numDays > 365 ) {
-        if (isLeap(endYear)) {
-            endYear += 1;
-            numDays -= 366;
-        }
-        else {
-            endYear += 1;
-            numDays -= 365;
-        }
-    }
-
-    //check how many days left in this month
-    const findDaysLeft = (todayMonth, todayDay, endYear) => {
-        //we have 29 days in feb if leap year, otherwise 28 days
-        if( todayMonth === 2 ) {
-            if(isLeap(endYear)) {
-                return (29 - todayDay);
-            }
-            return (28 - todayDay);
-        }
-
-        //if it is April, June, September and November, we only have 30 days
-        if ( todayMonth === 4 || todayMonth === 6 || todayMonth === 9 || todayMonth === 11 ) {
-            return (30 - todayDay);
-        }
-        return (31 - todayDay);
-    };
-
-    //if it reaches here, numDays < 365
-    findDaysLeft(todayMonth, todayDay, endYear);
-
-    while (numDays > 0) {
-        if( endMonth === 2 && numDays >= 28) {
-            if(isleap(endYear) && numDays >= 29) {
-                return addMonthsRecursive((numDays - 29), (endMonth + 1), isEndYearLeap);
-            }
-            return addMonthsRecursive((numDays - 28), (endMonth + 1), isEndYearLeap);
-        }
-        
-        if (numDays >= 31) {
-            //if it is April, June, September and November, we only have 30 days
-            if ( endMonth === 4 || endMonth === 6 || endMonth === 9 || endMonth === 11 ) {
-                return addMonthsRecursive((numDays - 30), (endMonth + 1), isEndYearLeap);
-            }
-            return addMonthsRecursive((numDays - 31), (endMonth + 1), isEndYearLeap);
-        }
-    }
-        
-
-        
-    }
-
-    let isEndYearLeap = isLeap(endYear);
-
-    if (numDays >= 31) {
-        addDaysRecursive(numDays, endMonth, isEndYearLeap)
-    }
-
-    if (numDays < daysLeft) {
-        endDay += numDays;
-        return (endYear + endMonth + endDay);
-    }
-
-    //else we add days left
-    endDay += daysLeft;
-    numDays -= daysLeft;
-
-
-    
-};*/
 
 const checkExpiring = (itemList, numDays) => {
     const endDate = new Date(new Date().getTime() + (numDays*24*60*60*1000));

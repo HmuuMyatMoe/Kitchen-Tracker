@@ -15,8 +15,6 @@ import {
     measurementId,
 } from '@env';
 
-//import { getMessaging } from "firebase/messaging";
-
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -34,8 +32,6 @@ const firebaseConfig = {
 // https://docs.expo.dev/guides/using-firebase/
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Cloud Messaging and get a reference to the service
-//const messaging = getMessaging(app);
 
 const auth = getAuth(); //authentication
 const db = getFirestore(app); //instance of database
